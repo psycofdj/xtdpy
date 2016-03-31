@@ -11,9 +11,9 @@ import logging
 import importlib
 import json
 
-from .. import logger
-from ..tools import mergedicts
-from .. import mixin
+from ..                import logger
+from ..tools           import mergedicts
+from ..                import mixin
 from ..error.exception import BaseException
 
 #------------------------------------------------------------------#
@@ -44,12 +44,6 @@ DEFAULT_CONFIG = {
       "class"       : "logging.handlers.SysLogHandler",
       "formatter"   : "default",
       "address"     : "/dev/log",
-      "filters"     : []
-    },
-    "memory" : {
-      "class"       : "xtd.core.logger.handler.MemoryHandler",
-      "formatter"   : "default",
-      "max_records" : 2000,
       "filters"     : []
     }
   },
@@ -146,34 +140,36 @@ class LogManager(metaclass=mixin.Singleton):
 
   def get_formatter(self, p_name):
     if not p_name in self.m_formatters:
-      raise BaseException(__name__, "undefinied logging formatter '%s'" % p_name)
+      raise BaseException(__name__, "undefined logging formatter '%s'" % p_name)
     return self.m_formatters[p_name]
 
   def get_filter(self, p_name):
     if not p_name in self.m_filters:
-      raise BaseException(__name__, "undefinied logging filter '%s'" % p_name)
+      raise BaseException(__name__, "undefined logging filter '%s'" % p_name)
     return self.m_filters[p_name]
 
   def get_handler(self, p_name):
     if not p_name in self.m_handlers:
-      raise BaseException(__name__, "undefinied logging handler '%s' " % p_name)
+      raise BaseException(__name__, "undefined logging handler '%s' " % p_name)
     return self.m_handlers[p_name]
 
-  def _get_class(self, p_name):
-    l_parts      = p_name.split('.')
+  def _get_class(self, p_name, p_data):
+    if not "class" in p_data:
+      raise BaseException(__name__, "unspecified class for object '%s'" % p_name)
+
+    l_parts      = p_data["class"].split('.')
     l_moduleName = '.'.join(l_parts[:-1])
     l_className  = '.'.join(l_parts[-1:])
     try:
       l_module = importlib.import_module(l_moduleName)
     except Exception as l_error:
       raise BaseException(__name__, "unable to import module '%s' : %s" % (l_moduleName, str(l_error)))
-
     try:
       return getattr(l_module, l_className)
     except Exception as l_error:
       raise BaseException(__name__, "unable to find class '%s' in module '%s'" % (l_className, l_moduleName))
 
-  def load_config(self, p_config, p_override):
+  def load_config(self, p_config = {}, p_override = {}):
     l_config = p_config
     if l_config == {}:
       l_config = self.m_config
@@ -185,11 +181,12 @@ class LogManager(metaclass=mixin.Singleton):
 
   def _load_filters(self):
     l_usedFilters = set()
-    for c_name, c_value in self.m_config["handlers"].items():
-      l_usedFilters |= set([ x for x in c_value["filters"] ])
-    l_filters = { x:y for x,y in self.m_config["filters"].items() if x in l_usedFilters }
+    for c_name, c_value in self.m_config.get("handlers", {}).items():
+      l_usedFilters |= set([ x for x in c_value.get("filters", []) ])
+
+    l_filters = { x:y for x,y in self.m_config.get("filters", {}).items() if x in l_usedFilters }
     for c_name, c_conf in l_filters.items():
-      l_class = self._get_class(c_conf["class"])
+      l_class = self._get_class(c_name, c_conf)
       l_params = { x : y for x,y in c_conf.items() if x != "class" }
       try:
         l_obj = l_class(**l_params)
@@ -198,10 +195,12 @@ class LogManager(metaclass=mixin.Singleton):
       self.add_filter(c_name, l_obj)
 
   def _load_formatters(self):
-    l_usedFormatters = set([ y["formatter"] for x,y in self.m_config["handlers"].items() ])
-    l_formatters     = { x:y for x,y in self.m_config["formatters"].items() if x in l_usedFormatters }
+    l_handlers       = self.m_config.get("handlers",   {})
+    l_formatters     = self.m_config.get("formatters", {})
+    l_usedFormatters = set([ y.get("formatter", "default") for x,y in l_handlers.items() ])
+    l_formatters     = { x:y for x,y in l_formatters.items() if x in l_usedFormatters }
     for c_name, c_conf in l_formatters.items():
-      l_class  = self._get_class(c_conf["class"])
+      l_class  = self._get_class(c_name, c_conf)
       l_params = { x : y for x,y in c_conf.items() if x != "class" }
       try:
         l_obj = l_class(**l_params)
@@ -211,13 +210,16 @@ class LogManager(metaclass=mixin.Singleton):
 
   def _load_handlers(self):
     l_usedHandlers = set()
-    for c_name, c_value in self.m_config["loggers"].items():
-      l_usedHandlers |= set([ x for x in c_value["handlers"] ])
-    l_handlers = { x:y for x,y in self.m_config["handlers"].items() if x in l_usedHandlers }
+    l_loggers      = self.m_config.get("loggers",  {})
+    l_handlers     = self.m_config.get("handlers", {})
+
+    for c_name, c_value in l_loggers.items():
+      l_usedHandlers |= set([ x for x in c_value.get("handlers", {})])
+    l_handlers = { x:y for x,y in l_handlers.items() if x in l_usedHandlers }
     for c_name, c_conf in l_handlers.items():
-      l_class = self._get_class(c_conf["class"])
+      l_class         = self._get_class(c_name, c_conf)
       l_formatterName = c_conf.get("formatter", "default")
-      l_params = { x : y for x,y in c_conf.items() if x not in [ "class", "formatter", "filters" ] }
+      l_params        = { x : y for x,y in c_conf.items() if x not in [ "class", "formatter", "filters" ] }
       if "stream" in l_params:
         if l_params["stream"] == "stdout":
           l_params["stream"] = sys.stdout
@@ -257,8 +259,6 @@ class LogManager(metaclass=mixin.Singleton):
       self._load_formatters()
       self._load_handlers()
       self._load_loggers()
-    except KeyError as l_error:
-      raise BaseException(__name__, "unable to initialize logging facility : unexpected key %s in configuration" % str(l_error))
     except Exception as l_error:
       raise BaseException(__name__, "unable to initialize logging facility : %s" % str(l_error))
     logger.info(__name__, "facility initialized")
