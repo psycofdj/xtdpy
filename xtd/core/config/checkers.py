@@ -19,6 +19,26 @@ from ..tools           import url
 
 
 def check_file(p_section, p_name, p_value, p_read = False, p_write = False, p_execute = False):
+  """check that given config parameter is a valid file with valid rwx attributes
+
+  If p_value does not exists and only write attribute is requested,
+  the function checks that the file can be created in its parent directory
+
+  Args:
+      p_section (str): parameter section name
+      p_name (str): parameter name
+      p_value (str): parameter value
+      p_read (str): target file should be readable
+      p_write (str): target file should be writable
+      p_execute (str): target file should be executable
+
+  Returns:
+      bool: file absolute path
+
+  Raises:
+     ConfigValueFileException: p_value is a directory
+     ConfigValueFileModeException: p_value dosen't meet requested rwx attributes
+  """
   l_absFilePath = os.path.expanduser(p_value)
   l_absFilePath = os.path.abspath(l_absFilePath)
 
