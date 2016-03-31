@@ -25,12 +25,18 @@ class LocationFormatter(logging.Formatter):
   def _get_loc(self, p_record):
     l_loc = self.m_locFmt % { x : getattr(p_record, x) for x in dir(p_record) if x[0] != "_" }
     l_args = {}
-    for c_color in self.m_locstyle["colors"]:
+    l_colors = self.m_locstyle.get("colors", [])
+    l_attrs  = self.m_locstyle.get("attrs",  [])
+    if not type(l_colors) == list:
+      l_colors = [ l_colors ]
+    if not type(l_attrs) == list:
+      l_attrs = [ l_attrs ]
+    l_args["attrs"] = l_attrs
+    for c_color in l_colors:
       if c_color[0:3] == "on_":
         l_args["on_color"] = c_color
       else:
         l_args["color"] = c_color
-    l_args["attrs"] = self.m_locstyle.get("attrs", [])
     return termcolor.colored(l_loc, **l_args)
 
   def format(self, p_record):

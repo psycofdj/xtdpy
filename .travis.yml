@@ -3,6 +3,9 @@ dist: trusty
 python:
   - "3.4"
 install: "pip install -r requirements.txt"
-script: ./scripts/coverage.sh
+script:
+ - ./scripts/coverage.sh
+ - ./setup.py check sdist
+
 after_success:
  - coveralls
