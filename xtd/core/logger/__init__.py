@@ -10,7 +10,7 @@ import logging
 #------------------------------------------------------------------#
 
 def get(p_module = None):
-  if (p_module == "root") or (p_module == None):
+  if (p_module == "root") or (p_module is None):
     return logging.getLogger()
   return logging.getLogger(p_module)
 
@@ -31,5 +31,7 @@ def critical(p_module, p_msg, *p_args, **p_kwds):
   __wrap("critical", p_module, p_msg, *p_args, **p_kwds)
 def exception(p_module, p_msg, *p_args, **p_kwds):
   __wrap("exception", p_module, p_msg, *p_args, **p_kwds)
+def log(p_level, p_module, p_msg, *p_args, **p_kwds):
+  __wrap(p_level, p_module, p_msg, *p_args, **p_kwds)
 
 #------------------------------------------------------------------#

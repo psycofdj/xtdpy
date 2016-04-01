@@ -26,10 +26,10 @@ class Base:
       self.update_safe()
 
   def visit_safe(self, p_visitor):
-    raise NotImplemented
+    raise NotImplementedError
 
   def update_safe(self):
-    raise NotImplemented
+    raise NotImplementedError
 
 #------------------------------------------------------------------#
 
@@ -113,10 +113,12 @@ class Composed(Base):
       return p_counter
 
   def visit_safe(self, p_visitor):
-    [ x.visit(p_visitor) for x in self.m_childs ]
+    for c_child in self.m_childs:
+      c_child.visit(p_visitor)
 
   def update_safe(self):
-    [ x.update() for x in self.m_childs ]
+    for c_child in self.m_childs:
+      c_child.update()
 
 #------------------------------------------------------------------#
 
@@ -126,12 +128,12 @@ class AvgTime(Composed):
     self.m_samples  = []
     self.m_timeMs   = p_timeMs
     self.m_maxSize  = p_maxSamples
-    self.m_rtt_min  = UInt32("min", None)
-    self.m_rtt_max  = UInt32("max", None)
-    self.m_rtt_moy  = UInt32("moy", None)
-    self.register(self.m_rtt_min)
-    self.register(self.m_rtt_max)
-    self.register(self.m_rtt_moy)
+    self.m_rttMin  = UInt32("min", None)
+    self.m_rttMax  = UInt32("max", None)
+    self.m_rttMoy  = UInt32("moy", None)
+    self.register(self.m_rttMin)
+    self.register(self.m_rttMax)
+    self.register(self.m_rttMoy)
 
   def push(self, p_val):
     with self.m_lock:
@@ -144,9 +146,9 @@ class AvgTime(Composed):
     self.m_samples = [ x for x in self.m_samples if x[0] >= l_max ]
     l_size = len(self.m_samples)
     if not l_size:
-      self.m_rtt_min.unset()
-      self.m_rtt_max.unset()
-      self.m_rtt_moy.unset()
+      self.m_rttMin.unset()
+      self.m_rttMax.unset()
+      self.m_rttMoy.unset()
     else:
       l_max  = 0
       l_sum  = 0
@@ -155,9 +157,9 @@ class AvgTime(Composed):
         l_min = min(l_min, c_val[1])
         l_max = max(l_max, c_val[1])
         l_sum += c_val[1]
-      self.m_rtt_min.val(int(l_min))
-      self.m_rtt_max.val(int(l_max))
-      self.m_rtt_moy.val(int(l_sum / l_size))
+      self.m_rttMin.val(int(l_min))
+      self.m_rttMax.val(int(l_max))
+      self.m_rttMoy.val(int(l_sum / l_size))
 
 #------------------------------------------------------------------#
 

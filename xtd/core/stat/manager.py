@@ -1,4 +1,5 @@
 # -*- coding: utf-8
+# pylint: disable=unused-import
 #------------------------------------------------------------------#
 
 __author__    = "Xavier MARCELET <xavier@marcelet.com>"
@@ -6,8 +7,8 @@ __author__    = "Xavier MARCELET <xavier@marcelet.com>"
 #------------------------------------------------------------------#
 
 from ..       import mixin
-from ..       import logger
 from ..tools  import thread
+from ..error  import exception
 
 #------------------------------------------------------------------#
 
@@ -19,12 +20,12 @@ class StatManager(thread.SafeThreadGroup, metaclass=mixin.Singleton):
   def add_handler(self, p_handler):
     from .handler import StatHandler
     if not issubclass(p_handler.__class__, StatHandler):
-      raise BaseException(__name__, "handlers must be StatHandler based class")
+      raise exception.XtdException(__name__, "handlers must be StatHandler based class")
     self.add_thread(p_handler)
 
   def add_counter(self, p_path, p_counter):
     if p_path in self.m_counters:
-      raise BaseException(__name__, "already definied counter '%s'", p_path)
+      raise exception.XtdException(__name__, "already definied counter '%s'" % p_path)
     self.m_counters[p_path] = p_counter
 
   def write(self):
@@ -36,7 +37,7 @@ class StatManager(thread.SafeThreadGroup, metaclass=mixin.Singleton):
 
   def get(self, p_path):
     if not p_path in self.m_counters:
-      raise BaseException(__name__, "undefinied counter '%s'", p_path)
+      raise exception.XtdException(__name__, "undefinied counter '%s'" % p_path)
     return self.m_counters[p_path]
 
   def get_json(self):
@@ -48,8 +49,11 @@ class StatManager(thread.SafeThreadGroup, metaclass=mixin.Singleton):
         if not c_part in l_item:
           l_item[c_part] = {}
         l_item = l_item[c_part]
+
       def visitor(p_name, p_value):
+        # pylint: disable=cell-var-from-loop
         l_item[p_name] = p_value
+
       c_counter.visit(visitor)
     return l_res
 

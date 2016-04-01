@@ -11,15 +11,17 @@ import termcolor
 #------------------------------------------------------------------#
 
 class FieldFilter(logging.Filter):
-  def __init__(self, fields = {}):
+  def __init__(self, fields=None):
     super().__init__()
     self.m_fields = fields
+    if fields is None:
+      self.m_fields = {}
     self.m_widths = { x : 0 for x in fields.keys() }
 
   def _width(self, p_record):
     l_filter = lambda x,y : y.get("pad", False) and hasattr(p_record, x)
     l_data   = { x:y for x,y in self.m_fields.items() if l_filter(x,y) }
-    for c_name, c_data in l_data.items():
+    for c_name in l_data.keys():
       l_value = getattr(p_record, c_name)
       l_size  = len(l_value)
       self.m_widths[c_name] = max(self.m_widths[c_name], l_size)

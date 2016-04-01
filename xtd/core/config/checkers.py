@@ -1,7 +1,7 @@
 # -*- coding: utf-8
 #------------------------------------------------------------------#
 
-__author__    = "Xavier MARCELET <xavier@marcelet.com>"
+__author__ = "Xavier MARCELET <xavier@marcelet.com>"
 
 #------------------------------------------------------------------#
 
@@ -12,13 +12,16 @@ import re
 import socket
 from functools import partial
 
-from ..error.exception import *
+from ..error.exception import ConfigValueFileException, ConfigValueFileModeException
+from ..error.exception import ConfigValueDirException, ConfigValueDirModeException
+from ..error.exception import ConfigValueTypeException, ConfigValueLimitsException
+from ..error.exception import ConfigValueEnumException, ConfigValueException
 from ..tools           import url
 
 #------------------------------------------------------------------#
 
 
-def check_file(p_section, p_name, p_value, p_read = False, p_write = False, p_execute = False):
+def check_file(p_section, p_name, p_value, p_read=False, p_write=False, p_execute=False):
   """check that given config parameter is a valid file with valid rwx attributes
 
   If p_value does not exists and only write attribute is requested,
@@ -50,12 +53,12 @@ def check_file(p_section, p_name, p_value, p_read = False, p_write = False, p_ex
       raise ConfigValueFileModeException(p_section, p_name, p_value, p_read, p_write, p_execute)
   else:
     if not check_mode(l_absFilePath, p_read, p_write, p_execute):
-      raise ConfigValueFileModeException(p_section, p_name, p_value, p_read, p_write,p_execute)
+      raise ConfigValueFileModeException(p_section, p_name, p_value, p_read, p_write, p_execute)
   return l_absFilePath
 
 # ------------------------------------------------------------------------- #
 
-def check_dir(p_section, p_name, p_value, p_read = False, p_write = False, p_execute = False):
+def check_dir(p_section, p_name, p_value, p_read=False, p_write=False, p_execute=False):
   l_absDirPath = os.path.expanduser(p_value)
   l_absDirPath = os.path.abspath(l_absDirPath)
   if not os.path.isdir(l_absDirPath):
@@ -66,11 +69,11 @@ def check_dir(p_section, p_name, p_value, p_read = False, p_write = False, p_exe
 
 # ------------------------------------------------------------------------- #
 
-def check_int(p_section, p_name, p_value, p_min = None, p_max = None):
-  if type(p_value) == int:
+def check_int(p_section, p_name, p_value, p_min=None, p_max=None):
+  if isinstance(p_value, int) and not isinstance(p_value, bool):
     l_value = p_value
   else:
-    if type(p_value) == str:
+    if isinstance(p_value, str):
       try:
         l_value = int(p_value)
       except ValueError:
@@ -86,11 +89,11 @@ def check_int(p_section, p_name, p_value, p_min = None, p_max = None):
 
 # ------------------------------------------------------------------------- #
 
-def check_float(p_section, p_name, p_value, p_min = None, p_max = None):
-  if type(p_value) == float:
+def check_float(p_section, p_name, p_value, p_min=None, p_max=None):
+  if isinstance(p_value, float):
     l_value = p_value
   else:
-    if type(p_value) == str:
+    if isinstance(p_value, str):
       try:
         l_value = float(p_value)
       except ValueError:
@@ -106,9 +109,9 @@ def check_float(p_section, p_name, p_value, p_min = None, p_max = None):
 # ------------------------------------------------------------------------- #
 
 def check_bool(p_section, p_name, p_value):
-  if type(p_value) == bool:
+  if isinstance(p_value, bool):
     return p_value
-  if type(p_value) != str:
+  if not isinstance(p_value, str):
     raise ConfigValueTypeException(p_section, p_name, p_value, ConfigValueTypeException.BOOL)
   if ((p_value.lower() == 'true') or
       (p_value.lower() == 'yes') or
@@ -129,9 +132,9 @@ def check_enum(p_section, p_name, p_value, p_values):
 
 # ------------------------------------------------------------------------- #
 
-def check_mode(p_path, p_read = False, p_write = False, p_execute = False):
+def check_mode(p_path, p_read=False, p_write=False, p_execute=False):
   if not os.path.exists(p_path):
-      return False
+    return False
   l_mode = os.F_OK
   if p_read:
     l_mode = l_mode or os.R_OK
@@ -147,19 +150,19 @@ def check_mode(p_path, p_read = False, p_write = False, p_execute = False):
 
 
 def check_mail(p_section, p_name, p_value):
-  l_mail_regexp = "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}"
-  if not re.match("^%s$" % l_mail_regexp, p_value):
-    if not re.match("^[^<]*<%s>$" % l_mail_regexp, p_value):
+  l_mailRgx = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}"
+  if not re.match("^%s$" % l_mailRgx, p_value):
+    if not re.match("^[^<]*<%s>$" % l_mailRgx, p_value):
       l_message = "value '%s' is not an email address" % p_value
       raise ConfigValueException(p_section, p_name, l_message)
   return p_value
 
 # ------------------------------------------------------------------------- #
 
-def check_array(p_section, p_name, p_value, p_check = None):
+def check_array(p_section, p_name, p_value, p_check=None):
   l_res   = []
   l_value = p_value
-  if not type(l_value) == list:
+  if not isinstance(l_value, list):
     l_value = l_value.split(",")
   for c_val in l_value:
     if p_check:
@@ -180,24 +183,30 @@ def check_host(p_section, p_name, p_value):
 
 # ------------------------------------------------------------------------- #
 
-def check_json(p_section, p_name, p_value, p_checks = {}):
-  if type(p_value) != dict:
-    try:
-      p_value = json.loads(p_value)
-    except Exception as l_error:
-      raise ConfigValueException(p_section, p_name, "invalid json : %s" % str(l_error))
+def check_json(p_section, p_name, p_value):
+  if isinstance(p_value, dict):
+    return p_value
+
+  try:
+    p_value = json.loads(p_value)
+  except Exception as l_error:
+    raise ConfigValueException(p_section, p_name, "invalid json : %s" % str(l_error))
   return p_value
 
 # ------------------------------------------------------------------------- #
 
-def check_socket(p_section, p_name, p_value, p_schemes = [], p_checkUnix = False):
+def check_socket(p_section, p_name, p_value, p_schemes=None, p_checkUnix=False):
+  if p_schemes is None:
+    p_schemes = []
   l_parts = urllib.parse.urlparse(p_value)
   if len(p_schemes) and (not l_parts[0] in p_schemes):
-    raise ConfigValueException(p_section, p_name, "invalid url '%s', scheme '%s' not in '%s'" % (p_value, l_parts[0], str(p_schemes)))
+    l_format = "invalid url '%s', scheme '%s' not in '%s'"
+    l_message = l_format % (p_value, l_parts[0], str(p_schemes))
+    raise ConfigValueException(p_section, p_name, l_message)
 
-  l_url, l_unix = url.parse_unix(p_value)
-  if p_checkUnix and l_unix:
-    check_file(p_section, p_name, l_unix, p_read=True, p_write=True)
+  l_result = url.parse_unix(p_value)
+  if p_checkUnix and l_result[1]:
+    check_file(p_section, p_name, l_result[1], p_read=True, p_write=True)
   return p_value
 
 # ------------------------------------------------------------------------- #

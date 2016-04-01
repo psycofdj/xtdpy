@@ -6,9 +6,8 @@ __author__    = "Xavier MARCELET <xavier@marcelet.com>"
 #------------------------------------------------------------------#
 
 import json
-import cherrypy
-import time
 import sys
+import cherrypy
 
 from .log                   import LogPage
 from .counter               import CounterPage
@@ -118,6 +117,7 @@ class ServerApplication(Application):
 
   @cherrypy.expose
   @cherrypy.tools.json_out()
+  #pylint: disable=unused-argument
   def default(self, *p_args, **p_kwds):
     l_reqinfo = {
       "method"  : cherrypy.request.method,
@@ -132,7 +132,8 @@ class ServerApplication(Application):
       "request" : l_reqinfo
     }
 
-  def _check_config(self):
+  @staticmethod
+  def _check_config():
     l_useTLS = config.get("http", "tls")
     if l_useTLS:
       l_values = [ "tlscacert", "tlscert", "tlskey" ]

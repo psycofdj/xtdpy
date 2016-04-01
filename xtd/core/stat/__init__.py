@@ -10,4 +10,4 @@ from .manager import StatManager
 #------------------------------------------------------------------#
 
 def get(p_name):
-  return CounterManager().get(p_name);
+  return StatManager().get(p_name)

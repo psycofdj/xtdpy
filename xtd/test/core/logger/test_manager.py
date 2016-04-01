@@ -33,7 +33,7 @@ class LogManagerTest(unittest.TestCase):
     l_formatter = logging.Formatter()
     self.m_obj.add_formatter("f1", l_formatter)
     self.m_obj.add_formatter("f2", l_formatter)
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       self.m_obj.add_formatter("f2", l_formatter)
 
   def test_get_formatter(self):
@@ -44,14 +44,14 @@ class LogManagerTest(unittest.TestCase):
     self.assertEqual(l_f1, self.m_obj.get_formatter("f1"))
     self.assertEqual(l_f2, self.m_obj.get_formatter("f2"))
     self.assertNotEqual(self.m_obj.get_formatter("f2"), self.m_obj.get_formatter("f1"))
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       self.m_obj.get_formatter("unknown")
 
   def test_add_filter(self):
     l_filter = logging.Filter()
     self.m_obj.add_filter("f1", l_filter)
     self.m_obj.add_filter("f2", l_filter)
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       self.m_obj.add_filter("f2", l_filter)
 
   def test_get_filter(self):
@@ -62,14 +62,14 @@ class LogManagerTest(unittest.TestCase):
     self.assertEqual(l_f1, self.m_obj.get_filter("f1"))
     self.assertEqual(l_f2, self.m_obj.get_filter("f2"))
     self.assertNotEqual(self.m_obj.get_filter("f2"), self.m_obj.get_filter("f1"))
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       self.m_obj.get_filter("unknown")
 
   def test_add_handler(self):
     l_handler = logging.Handler()
     self.m_obj.add_handler("h1", l_handler)
     self.m_obj.add_handler("h2", l_handler)
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       self.m_obj.add_handler("h2", l_handler)
 
   def test_get_handler(self):
@@ -80,7 +80,7 @@ class LogManagerTest(unittest.TestCase):
     self.assertEqual(l_f1, self.m_obj.get_handler("h1"))
     self.assertEqual(l_f2, self.m_obj.get_handler("h2"))
     self.assertNotEqual(self.m_obj.get_handler("h2"), self.m_obj.get_handler("h1"))
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       self.m_obj.get_handler("unknown")
 
   def test__get_class(self):
@@ -88,18 +88,21 @@ class LogManagerTest(unittest.TestCase):
     self.assertEqual(l_class, logging.handlers.WatchedFileHandler)
     l_class = self.m_obj._get_class("object", { "class" : "logging.StreamHandler" })
     self.assertEqual(l_class, logging.StreamHandler)
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       l_class = self.m_obj._get_class("object", { "class" : "logging.DoesNotExistsClass" })
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       l_class = self.m_obj._get_class("object", { "class" : "doesnotexistsmodule.Class" })
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       l_class = self.m_obj._get_class("object", { "class" : "unkown.module.class" })
 
   def test_load_config(self):
     self.m_obj.load_config()
     self.assertEqual(self.m_obj.m_config, manager.DEFAULT_CONFIG)
-    self.m_obj.load_config({})
+    self.m_obj.load_config(None)
     self.assertEqual(self.m_obj.m_config, manager.DEFAULT_CONFIG)
+    self.m_obj.load_config({})
+    self.assertEqual(self.m_obj.m_config, {})
+
     l_conf = {
       "loggers" : {
         "root" : { "a" : 2 }
@@ -116,7 +119,7 @@ class LogManagerTest(unittest.TestCase):
     })
     self.m_obj.load_config(l_conf, {})
     self.assertEqual(self.m_obj.m_config, l_conf)
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       self.m_obj.load_config(l_conf, list("notadict"))
 
   def test_load_filters_invalid(self):
@@ -160,7 +163,7 @@ class LogManagerTest(unittest.TestCase):
         }
       }
     })
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       self.m_obj._load_filters()
 
 
@@ -177,7 +180,7 @@ class LogManagerTest(unittest.TestCase):
         }
       }
     })
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       self.m_obj._load_filters()
 
     self.m_obj.load_config({
@@ -195,7 +198,7 @@ class LogManagerTest(unittest.TestCase):
         }
       }
     })
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       self.m_obj._load_filters()
 
   def test_load_formatters_invalid(self):
@@ -238,7 +241,7 @@ class LogManagerTest(unittest.TestCase):
         }
       }
     })
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       self.m_obj._load_formatters()
 
     self.m_obj.load_config({
@@ -256,7 +259,7 @@ class LogManagerTest(unittest.TestCase):
         }
       }
     })
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       self.m_obj._load_formatters()
 
 
@@ -283,7 +286,7 @@ class LogManagerTest(unittest.TestCase):
         }
       }
     })
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       self.m_obj._load_handlers()
 
     self.m_obj.load_config({
@@ -356,7 +359,7 @@ class LogManagerTest(unittest.TestCase):
       }
     })
     self.m_obj._load_formatters()
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       self.m_obj._load_handlers()
 
   def test_load_handlers_error(self):
@@ -378,7 +381,7 @@ class LogManagerTest(unittest.TestCase):
       }
     })
     self.m_obj._load_formatters()
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       self.m_obj._load_handlers()
 
     self.m_obj.load_config({
@@ -399,7 +402,7 @@ class LogManagerTest(unittest.TestCase):
         }
       }
     })
-    with self.assertRaises(exception.BaseException):
+    with self.assertRaises(exception.XtdException):
       self.m_obj._load_handlers()
 
 

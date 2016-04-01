@@ -18,11 +18,13 @@ class LogPage:
     self.m_credentials = p_credentials
 
   def check_password(self, p_realm, p_username, p_password):
+    p_realm=p_realm
     if not self.m_credentials:
       return True
     return (p_username in self.m_credentials) and (p_password == self.m_credentials[p_username])
 
-  def _level_to_name(self, p_level):
+  @staticmethod
+  def _level_to_name(p_level):
     if p_level == 10:
       return "debug"
     elif p_level == 20:
@@ -35,7 +37,8 @@ class LogPage:
       return "exception"
     return "notset"
 
-  def _name_to_level(self, p_level):
+  @staticmethod
+  def _name_to_level(p_level):
     p_level = p_level.lower()
     if p_level == "debug":
       return 10
@@ -53,6 +56,7 @@ class LogPage:
   @cherrypy.expose
   @cherrypy.tools.json_out()
   def write(self, *p_args, **p_kwds):
+    p_args  = p_args
     l_count = len(p_kwds.items())
     for c_name, c_val in p_kwds.items():
       if c_name == "root":
@@ -64,7 +68,8 @@ class LogPage:
       l_newLevelName = self._level_to_name(l_newLevel)
       l_logger.setLevel(l_newLevel)
       if l_levelName != l_newLevelName:
-        logger.info(__name__, "changing level of logger '%s' from '%s' to '%s'", c_name, l_levelName, l_newLevelName)
+        logger.info(__name__, "changing level of logger '%s' from '%s' to '%s'",
+                    c_name, l_levelName, l_newLevelName)
     return {
       "status"  : "success",
       "message" : "modified '%d' loggers" % l_count
@@ -73,8 +78,10 @@ class LogPage:
   @cherrypy.expose
   @cherrypy.tools.json_out()
   def default(self, *p_args, **p_kwds):
-    l_res  = {}
-    l_list = { x:y for x,y in logging.Logger.manager.loggerDict.items() if not x.startswith("cherrypy") }
+    p_args    = p_args
+    l_res     = {}
+    l_loggers = logging.Logger.manager.loggerDict.items()
+    l_list    = { x:y for x,y in l_loggers if not x.startswith("cherrypy") }
     for c_name in l_list:
       l_logger = logging.getLogger(c_name)
       if "effective" in p_kwds:

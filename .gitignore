@@ -62,3 +62,6 @@ target/
 .ipynb_checkpoints
 build
 .cov*
+.doc-built
+.lint-built
+.pylint_result

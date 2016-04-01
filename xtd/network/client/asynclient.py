@@ -10,11 +10,13 @@ import urllib.parse
 import io
 import pycurl
 
-from xtd.core       import logger
-from xtd.core.tools import url
+from xtd.core                 import logger
+from xtd.core.tools           import url
+from xtd.core.error.exception import XtdException
 
 #------------------------------------------------------------------#
 
+#pylint: disable=line-too-long
 CURL_ERRORS = {
   "1"  : "Unsupported protocol. This build of curl has no support for this protocol.",
   "2"  : "Failed to initialize.",
@@ -98,14 +100,17 @@ CURL_ERRORS = {
 #------------------------------------------------------------------#
 
 class HTTPRequest:
-  def __init__(self, p_url, p_method = None, p_headers = {}, p_data = None, p_agent = "xtd/pucyrl"):
+  def __init__(self, p_url, p_method=None, p_headers=None, p_data=None, p_agent="xtd/pucyrl"):
     self.m_method  = self._guess_method(p_method, p_data)
     self.m_url     = p_url
-    self.m_headers = p_headers
     self.m_data    = p_data
     self.m_agent   = p_agent
+    self.m_headers = p_headers
+    if p_headers is None:
+      self.m_headers = {}
 
-  def _guess_method(self, p_method, p_data):
+  @staticmethod
+  def _guess_method(p_method, p_data):
     if not p_method:
       p_method = "GET"
       if p_data:
@@ -113,7 +118,9 @@ class HTTPRequest:
     return p_method
 
 class JsonHTTPRequest(HTTPRequest):
-  def __init__(self, p_url, p_method = None, p_headers = {}, p_data = None, p_agent = "xtd/pucyrl"):
+  def __init__(self, p_url, p_method=None, p_headers=None, p_data=None, p_agent="xtd/pucyrl"):
+    if p_headers is None:
+      p_headers = {}
     p_headers["Content-Type"] = "application/json; charset=utf-8"
     p_data = json.dumps(p_data)
     super().__init__(p_url, p_method, p_headers, p_data, p_agent)
@@ -136,7 +143,7 @@ class HTTPResponse(TCPResponse):
     self.m_data        = None
     self.m_rawdata     = p_client.m_data.getvalue()
     self.m_headers     = p_client.m_headers
-    self.m_status_code = p_client.m_handle.getinfo(pycurl.RESPONSE_CODE)
+    self.m_statusCode  = p_client.m_handle.getinfo(pycurl.RESPONSE_CODE)
     self.m_mimetype    = "text/plain"
     self.m_encoding    = "iso-8859-1"
     self._read()
@@ -159,7 +166,7 @@ class HTTPResponse(TCPResponse):
     if self.m_mimetype == "application/json":
       try:
         self.m_data = json.loads(self.m_data)
-      except Exception as l_error:
+      except ValueError as l_error:
         self.m_error = str(l_error)
 
   def has_error(self):
@@ -169,17 +176,19 @@ class HTTPResponse(TCPResponse):
     return object.__getattribute__(self, "m_" + p_name)
 
 class AsyncCurlClient:
-  def __init__(self, p_request, p_timeoutMs = 1000, p_curlOpts = {}):
-    if type(p_request) == type(""):
+  def __init__(self, p_request, p_timeoutMs = 1000, p_curlOpts=None):
+    if isinstance(p_request, str):
       p_request = HTTPRequest(p_url=p_request)
-    self.m_request         = p_request
-    self.m_timeoutMs       = p_timeoutMs
-    self.m_opts            = p_curlOpts
-    self.m_response        = None
-    self.m_handle          = None
-    self.m_data            = None
-    self.m_headers         = None
-    self.m_handle          = pycurl.Curl()
+    self.m_request   = p_request
+    self.m_timeoutMs = p_timeoutMs
+    self.m_response  = None
+    self.m_handle    = None
+    self.m_data      = None
+    self.m_headers   = None
+    self.m_handle    = pycurl.Curl()
+    self.m_opts      = p_curlOpts
+    if p_curlOpts is None:
+      self.m_opts = {}
 
     self.cleanup()
     self._init_opt()
@@ -193,7 +202,8 @@ class AsyncCurlClient:
       self.m_handle.setopt(pycurl.TIMEOUT_MS, self.m_timeoutMs)
     self.m_handle.setopt(pycurl.FOLLOWLOCATION, True)
 
-  def _error_from_core(self, p_code):
+  @staticmethod
+  def _error_from_core(p_code):
     l_code = str(p_code)
     if l_code in CURL_ERRORS:
       return CURL_ERRORS[l_code]
@@ -202,7 +212,7 @@ class AsyncCurlClient:
   def __enter__(self):
     return self
 
-  def __exit__(self, type, value, traceback):
+  def __exit__(self, p_type, p_value, p_traceback):
     self.close()
 
   def cleanup(self):
@@ -221,9 +231,9 @@ class AsyncCurlClient:
     try:
       for c_opt, c_val in p_opts.items():
         self.m_handle.setopt(c_opt, c_val)
-    except pycurl.error as l_error:
+    except pycurl.error:
       logger.error(__name__, "unable to set option '%s' to value '%s'", c_opt, str(c_val))
-      raise BaseException(__name__, "unable to set option '%s' to value '%s'" % (c_opt, str(c_val)))
+      raise XtdException(__name__, "unable to set option '%s' to value '%s'" % (c_opt, str(c_val)))
 
   def _read_header(self, p_line):
     # HTTP standard header encoding
@@ -239,15 +249,15 @@ class AsyncCurlClient:
     try:
       for c_opt, c_val in self.m_opts.items():
         self.m_handle.setopt(c_opt, c_val)
-    except pycurl.error as l_error:
+    except pycurl.error:
       logger.error(__name__, "unable to set option '%s' to value '%s'", c_opt, str(c_val))
-      raise BaseException(__name__, "unable to set option '%s' to value '%s'" % (c_opt, str(c_val)))
+      raise XtdException(__name__, "unable to set option '%s' to value '%s'" % (c_opt, str(c_val)))
 
   def _init_method(self):
     if self.m_request.m_method == "GET":
       self.m_handle.setopt(pycurl.HTTPGET, 1)
     elif self.m_request.m_method == "PUT":
-      self.m_handle.setopt(pycurl.HTTPPUT, 1)
+      self.m_handle.setopt(pycurl.PUT, 1)
     elif self.m_request.m_method == "POST":
       if self.m_request.m_data:
         l_data = self.m_request.m_data
@@ -262,6 +272,7 @@ class AsyncCurlClient:
     l_url            = urllib.parse.urlunparse(l_parsed)
     self.m_handle.setopt(pycurl.URL, l_url)
     if l_unix:
+      # pylint: disable=no-member
       self.m_handle.setopt(pycurl.UNIX_SOCKET_PATH, l_unix)
 
   def _init_headers(self):
@@ -306,17 +317,20 @@ class AsyncCurlClient:
     self.m_handle.close()
 
 class AsyncCurlMultiClient:
-  def __init__(self, p_timeoutMs = 1000, p_curlMOpts = {}):
-    self.m_opts      = p_curlMOpts
+  def __init__(self, p_timeoutMs=1000, p_curlMOpts=None):
     self.m_handle    = pycurl.CurlMulti()
     self.m_clients   = []
     self.m_timeoutMs = p_timeoutMs
+    self.m_opts      = p_curlMOpts
+    if p_curlMOpts is None:
+      self.m_opts = {}
+
     self._init_opt()
 
   def __enter__(self):
     return self
 
-  def __exit__(self, type, value, traceback):
+  def __exit__(self, p_type, p_value, p_traceback):
     self.close()
 
   def add_request(self, p_request):
@@ -334,9 +348,9 @@ class AsyncCurlMultiClient:
     try:
       for c_opt, c_val in self.m_opts.items():
         self.m_handle.setopt(c_opt, c_val)
-    except pycurl.error as l_error:
+    except pycurl.error:
       logger.error(__name__, "unable to set option '%s' to value '%s'", c_opt, str(c_val))
-      raise BaseException(__name__, "unable to set option '%s' to value '%s'" % (c_opt, str(c_val)))
+      raise XtdException(__name__, "unable to set option '%s' to value '%s'" % (c_opt, str(c_val)))
 
   def close(self):
     for c_client in self.m_clients:
@@ -395,15 +409,18 @@ class AsyncCurlMultiClient:
     logger.error(__name__, "error on request '%s' : %s", c_client.m_request.m_url, c_client.response().error)
     return False
 
+  #pylint: disable=no-self-use
   def should_continue(self):
     return True
 
 if __name__ == "__main__":
-  l_multi = AsyncCurlMultiClient(p_retry=4)
-  l_req1 = l_multi.add_request("http://localhost:8889/")
-  l_req2 = l_multi.add_request("http://www.google.fr/")
-  l_res  = l_multi.send()
-  print(str(l_res))
-  print(str(l_req1.response().error))
-  print(str(l_req2.response().status_code))
-  l_multi.close()
+  def test():
+    l_multi = AsyncCurlMultiClient()
+    l_req1 = l_multi.add_request("http://localhost:8889/")
+    l_req2 = l_multi.add_request("http://www.google.fr/")
+    l_res  = l_multi.send(p_retry=4)
+    print(str(l_res))
+    print(str(l_req1.response().error))
+    print(str(l_req2.response().status_code))
+    l_multi.close()
+  test()
