@@ -10,10 +10,8 @@ install:
  - "pip install pylint"
 
 script:
- - ./scripts/unittests.py
+ - ./scripts/statuses.py --commit=$(git rev-parse HEAD) --build-id=${TRAVIS_BUILD}_ID --token=${token}
  - ./scripts/coverage.sh
- - ./scripts/lint_check.py
- - ./setup.py check sdist
 
 after_success:
  - coveralls
