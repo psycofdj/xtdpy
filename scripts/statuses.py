@@ -105,9 +105,47 @@ class StatusHelper:
       l_description = "unexpected error while reading unittests results"
       print("error while running unittests : %s" % (l_error))
     self.send_status(l_status, "checks/unittests", l_description)
+    print("")
+
+  def run_pylint(self):
+    print("-------------------")
+    print("Running pylint     ")
+    print("-------------------")
+
+    self.send_status("pending", "checks/pylint", "running pylint...")
+    l_proc = subprocess.Popen(["python3", "./scripts/xtdlint.py", "--rcfile", ".pylintrc", "-j", "4", "xtd" ], stdout=subprocess.PIPE)
+    l_proc.wait()
+    try:
+      l_lines      = l_proc.stdout.read().decode("utf-8")
+      l_data       = json.loads(l_lines)
+      l_score      = l_data["report"]["score"]
+      l_nbErrors   = l_data["report"]["errors"]["by_cat"].get("fatal", 0)
+      l_nbErrors  += l_data["report"]["errors"]["by_cat"].get("error", 0)
+
+      if l_score < 9:
+        l_status = "error"
+        l_description = "pylint score %.2f/10 too low" % l_score
+      elif l_nbErrors != 0:
+        l_status = "error"
+        l_description = "pylint detected '%d' unacceptables errors" % l_nbErrors
+      else:
+        l_status = "success"
+        l_description = "pylint score is %.2f/10" % l_score
+      for c_module, c_data in l_data["errors"].items():
+        for c_msg in c_data["items"]:
+          c_msg["path"] = c_data["path"]
+          print("%(C)s:%(symbol)-20s %(path)s:%(line)d:%(column)d " % c_msg)
+      print("")
+      print("Final score : %.2f/10" % l_score)
+    except Exception as l_error:
+      l_status      = "failure"
+      l_description = "unexpected error while reading pylint results"
+      print("error while running pylint : %s" % (l_error))
+    self.send_status(l_status, "checks/pylint", l_description)
 
   def run(self):
     self.run_unittests()
+    self.run_pylint()
 
 
 if __name__ == "__main__":

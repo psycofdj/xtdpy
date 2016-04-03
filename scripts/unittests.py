@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# -*- mode:python -*-
+# -*- coding:utf-8 -*-
+#------------------------------------------------------------------#
+
+__author__    = "Xavier MARCELET <xavier@marcelet.com>"
+
+#------------------------------------------------------------------#
 
 import inspect
 import unittest
@@ -6,12 +13,17 @@ import importlib
 import os
 import sys
 import json
+
+#------------------------------------------------------------------#
+
 def __sys_path():
   l_path = os.path.realpath(os.path.dirname(__file__))
   os.chdir(os.path.dirname(l_path))
   sys.path.append(".")
 
 __sys_path()
+
+#------------------------------------------------------------------#
 
 class JsonTestRunner(unittest.TextTestRunner):
   def __init__(self, *p_args, **p_kwds):
