@@ -11,6 +11,7 @@ import sys
 import requests
 import argparse
 import subprocess
+import urllib
 
 l_path = os.path.realpath(os.path.dirname(__file__))
 os.chdir(os.path.dirname(l_path))
@@ -18,33 +19,67 @@ sys.path.append(".")
 
 #------------------------------------------------------------------#
 
-# l_path=$(readlink -f $0)
-# cd $(dirname $(dirname ${l_path}))
-
-
-# l_token=$1; shift
-# l_buildID=$1; shift
-# l_commit=$1; shift
-
-# if [ -z "${l_commit}" ]; then
-#   l_commit=$(git rev-parse HEAD)
-# fi
-
 class StatusHelper:
   def __init__(self):
     self.m_dryrun = False
     self.m_parser = argparse.ArgumentParser("xtd build checker")
-    self.m_parser.add_argument("--token",    help="Github API secret token", dest="m_token",   required=True)
-    self.m_parser.add_argument("--build-id", help="Travis build-id",         dest="m_buildID", required=True)
-    self.m_parser.add_argument("--commit",   help="Current git commit hash", dest="m_commit",  required=True)
-    self.m_parser.add_argument("--dry-run",  help="Do not push statuses to github", dest="m_dryrun", action="store_true")
+    self.m_parser.add_argument("--token",    help="Github API secret token",        dest="m_token",     required=True)
+    self.m_parser.add_argument("--build-id", help="Travis build-id",                dest="m_buildID",   required=True)
+    self.m_parser.add_argument("--commit",   help="Current git commit hash",        dest="m_commit",    required=True)
+    self.m_parser.add_argument("--pull-id",  help="Current pull request,            false if not a PR", dest="m_prid", required=True)
+    self.m_parser.add_argument("--dry-run",  help="Do not push statuses to github", dest="m_dryrun",    action="store_true")
     self.m_parser.parse_args(sys.argv[1:], self)
+    self.m_comment = ""
 
   def getTargetUrl(self):
     l_url = "https://travis-ci.org/psycofdj/xtd/builds/%(buildID)s"
     return l_url % {
       "buildID" : self.m_buildID
     }
+
+  def make_badge(self, p_title, p_label, p_value, p_status, p_link = "#"):
+    if p_status == "error":
+      l_color = "red"
+    elif p_status == "failure":
+      l_color = "lightgrey"
+    elif p_status == "warning":
+      l_color = "yellow"
+    else:
+      l_color = "brightgreen"
+    l_url = "https://img.shields.io/badge/%(label)s-%(value)s-%(color)s.svg" % {
+      "label" : urllib.parse.quote(p_label),
+      "value" : urllib.parse.quote(p_value),
+      "color" : l_color
+    }
+
+    return "[![%(title)s](%(url)s)](%(link)s)" % {
+      "title" : p_title,
+      "url"   : l_url,
+      "link"  : p_link
+    }
+
+  def send_comment(self, p_body):
+    if self.m_dryrun:
+      return {}
+
+    l_params  = { "access_token" : self.m_token }
+    l_headers = { "Content-Type" : "application/json" }
+    l_url     = "https://api.github.com/repos/%(user)s/%(repo)s/issues/%(prid)s/comments" % {
+      "user"   : "psycofdj",
+      "repo"   : "xtd",
+      "prid"   : self.m_prid
+    }
+    l_data = {
+      "body" : p_body
+    }
+
+    try:
+      l_req = requests.post(l_url, params=l_params, headers=l_headers, data=json.dumps(l_data))
+    except Exception:
+      print("error while seding comment to github")
+      sys.exit(1)
+    return l_req.json()
+
 
   def send_status(self, p_status, p_tag, p_description):
     if self.m_dryrun:
@@ -64,9 +99,12 @@ class StatusHelper:
       "context"     : p_tag
     }
 
-    l_req = requests.post(l_url, params=l_params, headers=l_headers, data=json.dumps(l_data))
+    try:
+      l_req = requests.post(l_url, params=l_params, headers=l_headers, data=json.dumps(l_data))
+    except Exception:
+      print("error while seding comment to github")
+      sys.exit(1)
     return l_req.json()
-
 
   def run_unittests(self):
     print("-------------------")
@@ -85,6 +123,7 @@ class StatusHelper:
       }
       l_description = "Ran %(nbtests)d tests : %(nbok)d success, %(nbko)d errors" % l_info
       l_status = "error"
+
       if l_info["nbko"] == 0:
         l_status = "success"
       for c_test in l_data["details"]["success"]:
@@ -99,9 +138,13 @@ class StatusHelper:
         print("Ko : %(file)s:%(class)s:%(method)s" % c_test)
       print("")
       print("Ran %(nbtests)d tests, %(nbok)d success, %(nbko)d failures" % l_info)
+      l_badge = self.make_badge("Unit Tests", "unittests", "%(nbok)d / %(nbtests)d" % l_info, l_status)
+      self.m_comment += "%s\n" % l_badge
     except Exception as l_error:
       l_status      = "failure"
       l_description = "unexpected error while reading unittests results"
+      l_badge       = self.make_badge("Unit Tests", "unittests", "failure", l_status)
+      self.m_comment += "%s\n" % l_badge
       print("error while running unittests : %s" % (l_error))
     self.send_status(l_status, "checks/unittests", l_description)
     print("")
@@ -135,10 +178,14 @@ class StatusHelper:
           print("%(C)s:%(symbol)-20s %(path)s:%(line)d:%(column)d " % c_msg)
       print("")
       print("Final score : %.2f/10" % l_score)
+      l_badge = self.make_badge("PyLint", "pylint", "%.2f" % l_score, l_status)
+      self.m_comment += "%s\n" % l_badge
     except Exception as l_error:
       l_status      = "failure"
       l_description = "unexpected error while reading pylint results"
       print("error while running pylint : %s" % (l_error))
+      l_badge = self.make_badge("PyLint", "pylint", "failure", l_status)
+      self.m_comment += "%s\n" % l_badge
     self.send_status(l_status, "checks/pylint", l_description)
     print("")
 
@@ -152,9 +199,13 @@ class StatusHelper:
     if l_proc.returncode != 0:
       l_status      = "error"
       l_description = "error while generating documentation"
+      l_badge = self.make_badge("Documentation", "doc", "failed", l_status)
+      self.m_comment += "%s\n" % l_badge
     else:
       l_status      = "success"
       l_description = "documentation successfully generated"
+      l_badge = self.make_badge("Documentation", "doc", "passed", l_status)
+      self.m_comment += "%s\n" % l_badge
 
     l_lines = l_proc.stderr.readlines()
     if len(l_lines):
@@ -163,6 +214,7 @@ class StatusHelper:
     else:
       print("")
       print("Documentation OK")
+
     self.send_status(l_status, "checks/documentation", l_description)
     print("")
 
@@ -174,6 +226,11 @@ class StatusHelper:
     self.run_unittests()
     self.run_pylint()
     self.run_sphinx()
+    if self.m_prid != "false" :
+      self.send_comment("Automatic checks report for commit %(commit)s:\n\n%(results)s" % {
+        "commit" : self.m_commit,
+        "results" : self.m_comment
+      })
 
 if __name__ == "__main__":
   l_app = StatusHelper()
