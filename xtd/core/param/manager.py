@@ -1,6 +1,9 @@
 # -*- coding: utf-8
 # pylint: disable=unused-import
 #------------------------------------------------------------------#
+"""
+module doc top
+"""
 
 __author__    = "Xavier MARCELET <xavier@marcelet.com>"
 
@@ -15,24 +18,45 @@ from ..error import exception
 
 #------------------------------------------------------------------#
 
-__doc__ = """
-module doc
-"""
-
 class Param:
-  def __init__(self, p_name, p_value, p_listeners=None):
-    if p_listeners is None:
-      p_listeners = []
-    if not isinstance(p_listeners, list):
-      p_listeners = [ p_listeners ]
+  """Object that holds an JSON-serializable value
+
+  Args:
+     p_name (str)                     : Name of the parameter
+     p_value (json-serializable)      : Initial parameter value
+     p_callbacks (Optional[function]) : List of function to call whenever when the value changes\
+                                        Can be an array of functions or a single function
+
+  When changing value with the :meth:`set` method, all registered listerners are called
+  and if none of them raises an error, the value in stored.
+
+  New callbacks can be registered with :obj:`listen`
+
+  
+
+  Note:
+     Each callback must respect the following prototype :
+     ``function(p_parameter, p_oldValue, p_newValue)``
+
+     - p_parameter (Param): the modified Param object
+     - p_oldValue (json-serializable): parameter's old value
+     - p_newvalue (json-serializable): parameter's new value
+
+     Callback must raise :obj:`xtd.core.error.exception.XtdException` is new value is not acceptable
+  """
+  def __init__(self, p_name, p_value, p_callbacks=None):
+    if p_callbacks is None:
+      p_callbacks = []
+    if not isinstance(p_callbacks, list):
+      p_callbacks = [ p_callbacks ]
 
     self.m_type       = type(p_value)
     self.m_name       = p_name
-    self.m_listerners = p_listeners
+    self.m_callbacks = p_callbacks
     self.m_value      = p_value
 
   def listen(self, p_handler):
-    self.m_listerners.append(p_handler)
+    self.m_callbacks.append(p_handler)
     return self
 
   def get(self):
@@ -54,12 +78,12 @@ class Param:
                    self.m_name, str(self.m_value), str(p_value))
       return False
 
-    for c_listener in self.m_listerners:
+    for c_ballback in self.m_callbacks:
       try:
-        c_listener(self, self.m_value, p_value)
+        c_ballback(self, self.m_value, p_value)
       except exception.XtdException as l_error:
         logger.error(__name__,
-                     "unable to change param '%s' value from '%s' to '%s' : %s",
+                     "unable to change param '%s' value from '%s' to '%s', %s",
                      self.m_name, str(self.m_value), str(p_value), str(l_error))
         return False
     logger.info(__name__, "parameter '%s' changed value from '%s' to '%s'",
@@ -78,7 +102,7 @@ class ParamManager(metaclass=mixin.Singleton):
       p_adminDir (str) : directory to dump-to/load-from synced parameters
 
     Raises:
-      XtdException : p_adminDir is not writable
+       xtd.core.error.exception.XtdException : p_adminDir is not writable
 
     """
     self.m_params = {}
@@ -117,8 +141,8 @@ class ParamManager(metaclass=mixin.Singleton):
                                      "unable to load param '%s' from value file '%s' : %s",
                                      p_param.m_name, l_path, str(l_error))
 
-  def register(self, p_name, p_value, p_listeners=None, p_sync=False):
-    l_param = Param(p_name, p_value, p_listeners)
+  def register(self, p_name, p_value, p_callbacks=None, p_sync=False):
+    l_param = Param(p_name, p_value, p_callbacks)
     return self.register_param(l_param, p_sync)
 
   def register_param(self, p_param, p_sync=False):

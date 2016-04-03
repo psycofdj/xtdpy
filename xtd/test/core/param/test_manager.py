@@ -5,7 +5,7 @@ __author__    = "Xavier MARCELET <xavier@marcelet.com>"
 
 #------------------------------------------------------------------#
 
-
+import logging
 import os
 import unittest
 
@@ -33,7 +33,8 @@ class ParamTest(unittest.TestCase):
     self.assertEqual(self.m_obj.get(), 4)
     self.assertTrue(self.m_obj.set("66"))
     self.assertEqual(self.m_obj.get(), 66)
-    self.assertFalse(self.m_obj.set([2,3,4]))
+    with self.assertLogs(logging.getLogger("xtd.core.param.manager"), "ERROR"):
+      self.assertFalse(self.m_obj.set([2,3,4]))
 
     def only_even(p_param, p_old, p_new):
       if p_new % 2 == 1:
@@ -45,12 +46,14 @@ class ParamTest(unittest.TestCase):
     self.setUp(p_value = 0, p_listeners=only_even)
     self.assertTrue(self.m_obj.set(2))
     self.assertTrue(self.m_obj.set(4))
-    self.assertFalse(self.m_obj.set(5))
+    with self.assertLogs(logging.getLogger("xtd.core.param.manager"), "ERROR"):
+      self.assertFalse(self.m_obj.set(5))
 
     self.setUp(p_value = 0, p_listeners=only_switch)
     self.assertTrue(self.m_obj.set(1))
     self.assertTrue(self.m_obj.set(4))
-    self.assertFalse(self.m_obj.set(6))
+    with self.assertLogs(logging.getLogger("xtd.core.param.manager"), "ERROR"):
+      self.assertFalse(self.m_obj.set(6))
 
 # pylint: disable=protected-access
 class ConfigManagerTest(unittest.TestCase):
