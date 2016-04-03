@@ -8,12 +8,13 @@ __version__   = "0.3"
 
 import urllib
 import re
-import cherrypy
 import logging
+import cherrypy
 
-from xtd.core      import logger
-from xtd.core.stat import counter
-from .             import tools
+from xtd.core                 import logger
+from xtd.core.stat            import counter
+from .                        import tools
+from xtd.core.error.exception import XtdException
 
 #------------------------------------------------------------------#
 
@@ -28,16 +29,23 @@ class ServerManager:
 
     def filter(self, p_record):
       l_logger = logger.get(self.name)
-      p_record.msg  = re.sub("^\[[^\]]*\] *", "", p_record.msg)
-      p_record.msg  = re.sub("^ENGINE *", "",     p_record.msg)
+      p_record.msg  = re.sub(r"^\[[^\]]*\] *", "", p_record.msg)
+      p_record.msg  = re.sub(r"^ENGINE *", "",     p_record.msg)
       p_record.name = self.name
       l_logger.handle(p_record)
       return None
 
-  @classmethod
-  def listen(p_class, p_socket, p_nbThreads = 10, p_tls = False, p_cacert = None, p_cert = None, p_key = None):
+  #pylint: disable=protected-access
+  @staticmethod
+  def listen(p_class,
+             p_socket,
+             p_nbThreads=10,
+             p_tls=False,
+             p_cacert=None,
+             p_cert=None,
+             p_key=None):
     if not p_class.ms_initialized:
-      raise BaseException(__name__, "you must initialize server manager first")
+      raise XtdException(__name__, "you must initialize server manager first")
     l_server = cherrypy._cpserver.Server()
     p_socket = urllib.parse.urlparse(p_socket)
     if p_socket.scheme == "tcp":
@@ -59,23 +67,32 @@ class ServerManager:
     return l_server
 
   @classmethod
-  def get_counter(p_class):
-    return p_class.ms_counter
+  def get_counter(cls):
+    return cls.ms_counter
 
   @classmethod
-  def initialize(p_class, p_logger):
-    if p_class.ms_initialized:
+  def initialize(cls, p_logger):
+    if cls.ms_initialized:
       return None
-    p_class.ms_counter = counter.AvgTimePerf("rtt")
+    cls.ms_counter = counter.AvgTimePerf("rtt")
 
-    cherrypy.tools.counter_start        = cherrypy._cptools.Tool("on_start_resource", p_class.ms_counter.work_begin)
-    cherrypy.tools.counter_stop         = cherrypy._cptools.Tool("on_end_request",    p_class.ms_counter.work_end)
-    cherrypy.tools.log_request          = cherrypy._cptools.Tool('on_start_resource', tools.request_logger("debug", p_logger + ".request"))
-    cherrypy.tools.log_response         = cherrypy._cptools.Tool('on_end_resource',   tools.response_logger("debug", p_logger + ".response"))
+    cherrypy.tools.counter_start = \
+      cherrypy._cptools.Tool("on_start_resource", cls.ms_counter.work_begin)
+
+    cherrypy.tools.counter_stop = \
+      cherrypy._cptools.Tool("on_end_request",    cls.ms_counter.work_end)
+
+    cherrypy.tools.log_request = \
+      cherrypy._cptools.Tool('on_start_resource',
+                             tools.request_logger("debug", p_logger + ".request"))
+
+    cherrypy.tools.log_response = \
+      cherrypy._cptools.Tool('on_end_resource',
+                             tools.response_logger("debug", p_logger + ".response"))
 
     cherrypy.server.unsubscribe()
-    l_filterAccess = p_class.LoggerFilter(p_logger + ".access")
-    l_filterError  = p_class.LoggerFilter(p_logger + ".error")
+    l_filterAccess = cls.LoggerFilter(p_logger + ".access")
+    l_filterError  = cls.LoggerFilter(p_logger + ".error")
     logging.getLogger("cherrypy.acccess").addFilter(l_filterAccess)
     logging.getLogger("cherrypy.error").addFilter(l_filterError)
     cherrypy.config.update({
@@ -90,37 +107,40 @@ class ServerManager:
       "tools.log_response.on"         : True
     })
     cherrypy.engine.signals.subscribe()
-    p_class.ms_initialized = True
+    cls.ms_initialized = True
 
   @classmethod
-  def mount(p_class, p_handler, p_path, p_conf = {}, p_logger = "cherrypy"):
-    if not p_class.ms_initialized:
-      raise BaseException(__name__, "you must initialize server manager first")
+  def mount(cls, p_handler, p_path, p_conf=None, p_logger="cherrypy"):
+    if p_conf is None:
+      p_conf = {}
+
+    if not cls.ms_initialized:
+      raise XtdException(__name__, "you must initialize server manager first")
     l_app = cherrypy.tree.mount(p_handler, p_path, p_conf)
     l_app.log.error_log = logging.getLogger(p_logger + ".error")
     l_app.log.access_log = logging.getLogger(p_logger + ".access")
 
   @classmethod
-  def subscribe(p_class, p_channel, p_handler, p_prio):
-    if not p_class.ms_initialized:
-      raise BaseException(__name__, "you must initialize server manager first")
+  def subscribe(cls, p_channel, p_handler, p_prio):
+    if not cls.ms_initialized:
+      raise XtdException(__name__, "you must initialize server manager first")
     cherrypy.engine.subscribe(p_channel, p_handler, p_prio)
 
   @classmethod
 
-  def start(p_class):
-    if not p_class.ms_initialized:
-      raise BaseException(__name__, "you must initialize server manager first")
+  def start(cls):
+    if not cls.ms_initialized:
+      raise XtdException(__name__, "you must initialize server manager first")
     cherrypy.engine.start()
 
   @classmethod
-  def join(p_class):
-    if not p_class.ms_initialized:
-      raise BaseException(__name__, "you must initialize server manager first")
+  def join(cls):
+    if not cls.ms_initialized:
+      raise XtdException(__name__, "you must initialize server manager first")
     cherrypy.engine.block()
 
   @classmethod
-  def stop(p_class):
-    if not p_class.ms_initialized:
-      raise BaseException(__name__, "you must initialize server manager first")
-    cherrypy.engine.stop();
+  def stop(cls):
+    if not cls.ms_initialized:
+      raise XtdException(__name__, "you must initialize server manager first")
+    cherrypy.engine.stop()

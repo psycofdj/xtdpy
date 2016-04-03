@@ -1,4 +1,5 @@
 # -*- coding: utf-8
+# pylint: disable=unused-import
 #------------------------------------------------------------------#
 
 __author__    = "Xavier MARCELET <xavier@marcelet.com>"
@@ -9,20 +10,19 @@ import sys
 
 
 from .                    import stat, logger, config, param, mixin
-from .config              import checkers
-from .logger              import manager
-from .stat                import writter
-from .error.exception     import ConfigException, ConfigValueException, BaseException
+from .error.exception     import ConfigException, XtdException
 
 #------------------------------------------------------------------#
 
 class Application(metaclass=mixin.Singleton):
   def __init__(self, p_name = sys.argv[0]):
-    self.m_name        = p_name
-    self.m_config      = config.manager.ConfigManager()
-    self.m_logger      = None
-    self.m_signals     = []
-    self.m_stat        = None
+    self.m_name    = p_name
+    self.m_argv    = []
+    self.m_config  = config.manager.ConfigManager()
+    self.m_signals = []
+    self.m_stat    = None
+    self.m_param   = None
+    self.m_logger  = None
 
     self.m_config.register_section("general", "General Settings", [{
       "name"        : "config-file",
@@ -66,7 +66,9 @@ class Application(metaclass=mixin.Singleton):
                                   url each --stat-http-interval seconds\n
                          Can specify a comma separated combinaison of theses values\n
       """,
-      "checks"      : config.checkers.is_array(p_check=config.checkers.is_enum(p_values=["", "disk", "http"]))
+      "checks"      : config.checkers.is_array(
+        p_check=config.checkers.is_enum(p_values=["", "disk", "http"])
+      )
     },{
       "name"        : "disk-directory",
       "default"     : "/tmp/snmp/%s/stat/" % self.m_name,
@@ -96,6 +98,7 @@ class Application(metaclass=mixin.Singleton):
   def config(self):
     return self.m_config
 
+  # pylint: disable=no-self-use
   def process(self):
     return 0
 
@@ -113,13 +116,13 @@ class Application(metaclass=mixin.Singleton):
       if c_name == "disk":
         l_dir      = config.get("stat", "disk-directory")
         l_interval = config.get("stat", "disk-interval")
-        l_outputter = stat.writter.DiskWritter(l_dir, l_interval)
-        self.m_stat.add_handler(l_outputter)
+        l_disk     = stat.writter.DiskWritter(l_dir, l_interval)
+        self.m_stat.add_handler(l_disk)
       elif c_name == "http":
-        l_url       = config.get("stat", "http-url")
-        l_interval  = config.get("stat", "http-interval")
-        l_outputter = stat.writter.HttpWritter(l_url, l_interval)
-        self.m_stat.add_handler(l_outputter)
+        l_url      = config.get("stat", "http-url")
+        l_interval = config.get("stat", "http-interval")
+        l_http      = stat.writter.HttpWritter(l_url, l_interval)
+        self.m_stat.add_handler(l_http)
 
   def _initialize_log(self):
     self.m_logger = logger.manager.LogManager()
@@ -143,8 +146,11 @@ class Application(metaclass=mixin.Singleton):
   def stop(self):
     self.m_stat.stop()
 
-  def execute(self, p_argv = sys.argv):
+  def execute(self, p_argv=None):
+    if p_argv is None:
+      p_argv = sys.argv
     self.m_argv = p_argv
+
     try:
       self.initialize()
       self.define_counters()
@@ -152,7 +158,7 @@ class Application(metaclass=mixin.Singleton):
       print(l_error)
       self.m_config.help()
       sys.exit(1)
-    except BaseException as l_error:
+    except XtdException as l_error:
       print(l_error)
       sys.exit(1)
 
@@ -162,6 +168,6 @@ class Application(metaclass=mixin.Singleton):
       l_code = self.process()
       self.join()
       logger.info(__name__, "process finished (status=%d)", l_code)
-    except BaseException as l_error:
+    except XtdException as l_error:
       logger.exception("core.application", "uncaught exception '%s', exit(1)", l_error)
       sys.exit(1)

@@ -1,0 +1,7 @@
+cherrypy
+termcolor
+pycurl
+coveralls
+pylint
+sphinx
+sphinx_rtd_theme

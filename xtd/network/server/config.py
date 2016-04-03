@@ -13,6 +13,7 @@ from xtd.core import config
 class ConfigPage:
   @cherrypy.expose
   @cherrypy.tools.json_out()
+  #pylint: disable=unused-argument,no-self-use
   def default(self, *p_args, **p_kwds):
     l_result   = {
       c_sec : {

@@ -10,5 +10,5 @@ Unstable but usable.
 
 [![PyPI version](https://badge.fury.io/py/xtd.svg)](https://badge.fury.io/py/xtd)
 [![Build Status](https://travis-ci.org/psycofdj/xtd.svg?branch=master)](https://travis-ci.org/psycofdj/xtd)
-[![Coverage Status](https://coveralls.io/repos/github/psycofdj/xtd/badge.svg?branch=master)](https://coveralls.io/github/psycofdj/xtd?branch=master)
+[![Documentation Status](https://readthedocs.org/projects/xtd/badge)](http://readthedocs.org/docs/xtd/en/master/?badge=master)
 

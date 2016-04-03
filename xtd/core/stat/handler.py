@@ -18,7 +18,7 @@ class StatHandler(SafeThread):
 
   @abc.abstractmethod
   def write(self, p_counters):
-    raise NotImplemented
+    raise NotImplementedError
 
   def work(self):
     l_data = StatManager().get_all()

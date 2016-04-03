@@ -1,11 +1,17 @@
 language: python
+
 dist: trusty
+
 python:
   - "3.4"
-install: "pip install -r requirements.txt"
+
+install:
+ - "pip install -r requirements.dev.txt"
+
 script:
- - ./scripts/coverage.sh
- - ./setup.py check sdist
+ - ./devtools/statuses.py --commit=$(git rev-parse HEAD) --build-id=${TRAVIS_BUILD_ID} --token=${token} --pull-id=${TRAVIS_PULL_REQUEST}
+ - ./devtools/coverage.sh
+
 
 after_success:
  - coveralls
