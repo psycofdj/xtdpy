@@ -45,4 +45,4 @@ show-pylint: .pylint-built
 show: all show-doc show-cov show-covdoc show-pylint
 
 clean:
-	@rm -rf build .cov-buit .cov-report-built .coverage  .doc-built .covdoc-built
+	@rm -rf xtd.egg-info dist build .cov-buit .cov-report-built .coverage  .doc-built .covdoc-built

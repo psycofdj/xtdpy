@@ -9,7 +9,7 @@ xtd.core.stat.counter module
 
 .. automodule:: xtd.core.stat.counter
     :members:
-    
+    :undoc-members:
     :show-inheritance:
 
 xtd.core.stat.handler module
@@ -17,7 +17,7 @@ xtd.core.stat.handler module
 
 .. automodule:: xtd.core.stat.handler
     :members:
-    
+    :undoc-members:
     :show-inheritance:
 
 xtd.core.stat.manager module
@@ -25,7 +25,7 @@ xtd.core.stat.manager module
 
 .. automodule:: xtd.core.stat.manager
     :members:
-    
+    :undoc-members:
     :show-inheritance:
 
 xtd.core.stat.writter module
@@ -33,7 +33,7 @@ xtd.core.stat.writter module
 
 .. automodule:: xtd.core.stat.writter
     :members:
-    
+    :undoc-members:
     :show-inheritance:
 
 
@@ -42,5 +42,5 @@ Module contents
 
 .. automodule:: xtd.core.stat
     :members:
-    
+    :undoc-members:
     :show-inheritance:

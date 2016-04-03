@@ -51,7 +51,7 @@ source_suffix = '.rst'
 #source_encoding = 'utf-8-sig'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'xtd'
 
 # General information about the project.
 project = 'xtd'
@@ -293,3 +293,14 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+# def skip(app, what, name, obj, skip, options):
+#   if name == "__init__":
+#     return False
+#   return skip
+
+# def setup(app):
+#     app.connect("autodoc-skip-member", skip)
+
+autodoc_default_flags = ['members', 'undoc-members']
+autoclass_content = 'init'

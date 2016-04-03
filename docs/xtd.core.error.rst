@@ -1,13 +1,13 @@
-xtd.core.param package
+xtd.core.error package
 ======================
 
 Submodules
 ----------
 
-xtd.core.param.manager module
------------------------------
+xtd.core.error.exception module
+-------------------------------
 
-.. automodule:: xtd.core.param.manager
+.. automodule:: xtd.core.error.exception
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ xtd.core.param.manager module
 Module contents
 ---------------
 
-.. automodule:: xtd.core.param
+.. automodule:: xtd.core.error
     :members:
     :undoc-members:
     :show-inheritance:
