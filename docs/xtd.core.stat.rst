@@ -28,14 +28,6 @@ xtd.core.stat.manager module
     
     :show-inheritance:
 
-xtd.core.stat.visitor module
-----------------------------
-
-.. automodule:: xtd.core.stat.visitor
-    :members:
-    
-    :show-inheritance:
-
 xtd.core.stat.writter module
 ----------------------------
 

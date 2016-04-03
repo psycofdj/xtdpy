@@ -8,7 +8,6 @@ Subpackages
 
     xtd.core
     xtd.network
-    xtd.test
 
 Module contents
 ---------------

@@ -6,12 +6,11 @@ python:
   - "3.4"
 
 install:
- - "pip install -r requirements.txt"
- - "pip install pylint"
+ - "pip install -r requirements.dev.txt"
 
 script:
- - ./scripts/statuses.py --commit=$(git rev-parse HEAD) --build-id=${TRAVIS_BUILD}_ID --token=${token}
- - ./scripts/coverage.sh
+ - ./devtools/statuses.py --commit=$(git rev-parse HEAD) --build-id=${TRAVIS_BUILD_ID} --token=${token}
+ - ./devtools/coverage.sh
 
 after_success:
  - coveralls

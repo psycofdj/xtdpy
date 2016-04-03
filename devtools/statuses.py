@@ -73,8 +73,7 @@ class StatusHelper:
     print("Running test suites")
     print("-------------------")
 
-    self.send_status("pending", "checks/unittests", "running unittests...")
-    l_proc = subprocess.Popen(["python3", "./scripts/unittests.py", "--format", "json", "-v"], stdout=subprocess.PIPE)
+    l_proc = subprocess.Popen(["python3", "./devtools/unittests.py", "--format", "json", "-v"], stdout=subprocess.PIPE)
     l_proc.wait()
     try:
       l_lines = l_proc.stdout.read().decode("utf-8")
@@ -112,8 +111,7 @@ class StatusHelper:
     print("Running pylint     ")
     print("-------------------")
 
-    self.send_status("pending", "checks/pylint", "running pylint...")
-    l_proc = subprocess.Popen(["python3", "./scripts/xtdlint.py", "--rcfile", ".pylintrc", "-j", "4", "xtd" ], stdout=subprocess.PIPE)
+    l_proc = subprocess.Popen(["python3", "./devtools/xtdlint.py", "--rcfile", ".pylintrc", "-j", "4", "xtd" ], stdout=subprocess.PIPE)
     l_proc.wait()
     try:
       l_lines      = l_proc.stdout.read().decode("utf-8")
@@ -142,11 +140,40 @@ class StatusHelper:
       l_description = "unexpected error while reading pylint results"
       print("error while running pylint : %s" % (l_error))
     self.send_status(l_status, "checks/pylint", l_description)
+    print("")
+
+  def run_sphinx(self):
+    print("------------------------")
+    print("Genrating documentation ")
+    print("------------------------")
+
+    l_proc = subprocess.Popen(["sphinx-build", "-qaNW", "-b", "html", "-d", "../build/docs/cache", ".", "../build/docs/html" ], cwd="./docs", stderr=subprocess.PIPE)
+    l_proc.wait()
+    if l_proc.returncode != 0:
+      l_status      = "error"
+      l_description = "error while generating documentation"
+    else:
+      l_status      = "success"
+      l_description = "documentation successfully generated"
+
+    l_lines = l_proc.stderr.readlines()
+    if len(l_lines):
+      for c_line in l_lines:
+        print(c_line.decode("utf-8"))
+    else:
+      print("")
+      print("Documentation OK")
+    self.send_status(l_status, "checks/documentation", l_description)
+    print("")
+
 
   def run(self):
+    self.send_status("pending", "checks/unittests",     "running unittests...")
+    self.send_status("pending", "checks/pylint",        "running pylint...")
+    self.send_status("pending", "checks/documentation", "running sphinx...")
     self.run_unittests()
     self.run_pylint()
-
+    self.run_sphinx()
 
 if __name__ == "__main__":
   l_app = StatusHelper()
