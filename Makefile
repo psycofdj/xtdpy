@@ -3,14 +3,14 @@ SOURCEDIRS=$(shell find . -name '*.py' | grep -v test | xargs dirname | sort -u)
 TESTS=$(shell find . -name 'test_*.py')
 
 .doc-built: $(SOURCES) $(TESTS) Makefile
-	@make -C docs html
+	@make -s -C docs html
 	@touch $@
 
 check: $(SOURCES)
 	@./devtools/unittests.py
 
 .covdoc-built: $(SOURCES) $(TESTS) Makefile
-	@make -C docs coverage
+	@make -s -C docs coverage
 	@touch $@
 
 .cov-built: $(SOURCES) $(TESTS) Makefile
