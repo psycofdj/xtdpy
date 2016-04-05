@@ -6,9 +6,9 @@ __author__    = "Xavier MARCELET <xavier@marcelet.com>"
 #------------------------------------------------------------------#
 
 class XtdException(Exception):
-  def __init__(self, p_module, p_message):
+  def __init__(self, p_module, p_message, *p_args):
     self.m_module  = p_module
-    self.m_message = p_message
+    self.m_message = (p_message % p_args)
     super().__init__()
 
   def log(self):

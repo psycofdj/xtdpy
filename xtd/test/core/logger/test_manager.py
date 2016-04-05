@@ -101,7 +101,7 @@ class LogManagerTest(unittest.TestCase):
     self.m_obj.load_config(None)
     self.assertEqual(self.m_obj.m_config, manager.DEFAULT_CONFIG)
     self.m_obj.load_config({})
-    self.assertEqual(self.m_obj.m_config, {})
+    self.assertEqual(self.m_obj.m_config, manager.DEFAULT_CONFIG)
 
     l_conf = {
       "loggers" : {

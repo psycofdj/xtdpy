@@ -64,3 +64,4 @@ build
 .cov*
 .doc-built
 .pylint-built
+.lint-built

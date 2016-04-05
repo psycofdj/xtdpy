@@ -34,15 +34,15 @@ doc: .doc-built
 pylint: .pylint-built
 
 show-cov: .cov-report-built
-	@sensible-browser build/coverage/index.html
+	@sensible-browser build/coverage/index.html &
 show-doc: .doc-built
-	@sensible-browser build/docs/html/index.html
+	@sensible-browser build/docs/html/index.html &
 show-covdoc: .covdoc-built
-	@sensible-browser build/docs/coverage/python.txt
+	@sensible-browser build/docs/coverage/python.txt &
 show-pylint: .pylint-built
-	@sensible-browser build/pylint/index.html
+	@sensible-browser build/pylint/index.html &
 
 show: all show-doc show-cov show-covdoc show-pylint
 
 clean:
-	@rm -rf build .cov-buit .cov-report-built .coverage  .doc-built .covdoc-built
+	@rm -rf xtd.egg-info dist build .cov-buit .cov-report-built .coverage  .doc-built .covdoc-built

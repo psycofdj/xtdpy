@@ -9,7 +9,7 @@ xtd.core.logger.filter module
 
 .. automodule:: xtd.core.logger.filter
     :members:
-    
+    :undoc-members:
     :show-inheritance:
 
 xtd.core.logger.formatter module
@@ -17,7 +17,7 @@ xtd.core.logger.formatter module
 
 .. automodule:: xtd.core.logger.formatter
     :members:
-    
+    :undoc-members:
     :show-inheritance:
 
 xtd.core.logger.manager module
@@ -25,7 +25,7 @@ xtd.core.logger.manager module
 
 .. automodule:: xtd.core.logger.manager
     :members:
-    
+    :undoc-members:
     :show-inheritance:
 
 
@@ -34,5 +34,5 @@ Module contents
 
 .. automodule:: xtd.core.logger
     :members:
-    
+    :undoc-members:
     :show-inheritance:

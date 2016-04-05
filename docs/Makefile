@@ -52,8 +52,14 @@ help:
 clean:
 	rm -rf $(BUILDDIR)/*
 
+
+.PHONY: api
+api:
+	@sphinx-apidoc -f -o . ../xtd/ ../xtd/test/
+	@rm -f modules.rst
+
 .PHONY: html
-html:
+html: api
 	$(SPHINXBUILD) -qW -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."

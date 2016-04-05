@@ -14,5 +14,5 @@ Module contents
 
 .. automodule:: xtd.network
     :members:
-    
+    :undoc-members:
     :show-inheritance:
