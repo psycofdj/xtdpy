@@ -12,12 +12,12 @@ from setuptools import find_packages
 setup(
   name         = 'xtd',
   packages     = find_packages(exclude=["*test*"]),
-  version      = '0.3',
+  version      = '0.3.1',
   description  = 'High level library to quickly build strong python apps',
   author       = 'Xavier MARCELET',
   author_email = 'xavier@marcelet.com',
   url          = 'https://github.com/psycofdj/xtd',
-  download_url = 'https://github.com/psycofdj/xtd/tarball/0.3',
+  download_url = 'https://github.com/psycofdj/xtd/tarball/0.3.1',
   keywords     = ['xtd', 'python', 'library', 'high-level'],
   classifiers  = [
     "Development Status :: 2 - Pre-Alpha",

@@ -28,6 +28,14 @@ xtd.core.logger.manager module
     :undoc-members:
     :show-inheritance:
 
+xtd.core.logger.tools module
+----------------------------
+
+.. automodule:: xtd.core.logger.tools
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------
