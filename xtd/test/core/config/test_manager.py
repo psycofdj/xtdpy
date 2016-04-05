@@ -116,6 +116,19 @@ class ConfigManagerTest(unittest.TestCase):
     self.assertFalse(self.m_obj.option_cmdline_given("test", "does not exist"))
     self.assertFalse(self.m_obj.option_cmdline_given("does not exist", "value"))
 
+
+  def test_option_cmdline_given_dash(self):
+    self.m_obj.register_section("test", "Test", [{
+      "name"        : "opt-with-dash",
+      "default"     : "toto",
+      "description" : "a description"
+    }])
+    self.m_obj.initialize()
+    self.m_obj.parse(["script.py", "--test-opt-with-dash", "value"])
+    self.assertTrue(self.m_obj.option_cmdline_given("test", "opt-with-dash"))
+    self.assertFalse(self.m_obj.option_cmdline_given("test", "unknown-with-dash"))
+
+
   def test_get_args(self):
     self._basic_init(["script.py", "--test-value", "super", "a", "b", "c"])
     self.assertEqual(self.m_obj.get_args(), ["a", "b", "c"])
@@ -177,6 +190,7 @@ class ConfigManagerTest(unittest.TestCase):
     self.m_obj.initialize()
     with self.assertRaises(exception.ConfigException):
       self.m_obj.parse(["script.py"])
+
 
 #------------------------------------------------------------------#
 

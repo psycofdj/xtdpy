@@ -11,7 +11,8 @@ import sys
 import logging
 import importlib
 
-from ..                import logger
+
+from .                 import   tools
 from ..tools           import mergedicts
 from ..                import mixin
 from ..error.exception import XtdException
@@ -106,7 +107,7 @@ class WrapperLogger(logging.Logger):
     l_sourceFrame = None
     for c_pos in range(0, len(l_outFrames)):
       l_items = l_outFrames[c_pos]
-      if l_items[1].endswith("core/logger/__init__.py") and l_items[3] == "__wrap":
+      if l_items[1].endswith("core/logger/tools.py") and l_items[3] == "__wrap":
         l_sourceFrame = l_outFrames[c_pos + 2]
     if l_sourceFrame:
       return self.__sys_version((l_sourceFrame[1], l_sourceFrame[2], l_sourceFrame[3]))
@@ -175,7 +176,7 @@ class LogManager(metaclass=mixin.Singleton):
 
   def load_config(self, p_config=None, p_override=None):
     l_config = p_config
-    if l_config is None:
+    if l_config is None or p_config == {}:
       l_config = self.m_config
     if p_override is None:
       p_override = {}
@@ -276,4 +277,4 @@ class LogManager(metaclass=mixin.Singleton):
       self._load_loggers()
     except Exception as l_error:
       raise XtdException(__name__, "unable to initialize logging facility : %s" % str(l_error))
-    logger.info(__name__, "facility initialized")
+    tools.info(__name__, "facility initialized")

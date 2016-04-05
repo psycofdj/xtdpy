@@ -174,7 +174,7 @@ class FilterTest(unittest.TestCase):
 
     l_rec = self.makeRec({"field1" : "value"})
     self.assertEqual(self.m_obj.filter(l_rec), True)
-    self.assertEqual(l_rec.field1, "%-9s" % termcolor.colored("value", "yellow", "on_red"))
+    self.assertEqual(l_rec.field1, "%-23s" % termcolor.colored("value", "yellow", "on_red"))
 
 if __name__ == "__main__":
   unittest.main()
