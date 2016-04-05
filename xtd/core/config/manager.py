@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# pylint: disable=unused-import
+# pylint: disable=unused-import,deprecated-module
 #------------------------------------------------------------------#
 
 __author__    = "Xavier MARCELET <xavier@marcelet.com>"
@@ -131,6 +131,16 @@ class ConfigManager(metaclass=mixin.Singleton):
         self.m_data[c_option.m_section] = {}
       self.m_data[c_option.m_section][c_option.m_name] = c_option.m_default
 
+  def set_usage(self, p_usage):
+    self.m_usage = p_usage
+
+  @staticmethod
+  def _cmd_attribute_name(p_section, p_option):
+    return "parse_%(section)s_%(key)s" % {
+      "section" : p_section,
+      "key"     : p_option.replace("-", "_")
+    }
+
   def _cmd_parser_create(self):
     self.m_cmdParser = optparse.OptionParser(usage=self.m_usage,
                                              formatter=IndentedHelpFormatterWithNL())
@@ -145,10 +155,7 @@ class ConfigManager(metaclass=mixin.Singleton):
           "help"    : c_opt.m_description,
           "default" : None,
           "action"  : "store",
-          "dest"    : "parse_%(section)s_%(key)s" % {
-            "section" : c_section,
-            "key"     : c_opt.m_name.replace('-', '_')
-          }
+          "dest"    : self._cmd_attribute_name(c_section, c_opt.m_name)
         }
         if not c_opt.m_valued:
           l_kwds["action"] = "store_true"
@@ -163,8 +170,8 @@ class ConfigManager(metaclass=mixin.Singleton):
   def _cmd_parser_load(self, p_argv):
     self.m_cmdOpts, self.m_cmdArgs = self.m_cmdParser.parse_args(p_argv)
     for c_option in [ x for x in self.m_options if x.m_cmdline ]:
-      l_name  = c_option.m_name.replace('-', '_')
-      l_value = getattr(self.m_cmdOpts, "parse_%s_%s" % (c_option.m_section, l_name))
+      l_attribute = self._cmd_attribute_name(c_option.m_section, c_option.m_name)
+      l_value     = getattr(self.m_cmdOpts, l_attribute)
       if l_value != None:
         l_value = self._validate(c_option.m_section, c_option.m_name, l_value)
         self.set(c_option.m_section, c_option.m_name, l_value)
@@ -179,7 +186,8 @@ class ConfigManager(metaclass=mixin.Singleton):
 
   def option_cmdline_given(self, p_section, p_option):
     if self.option_exists(p_section, p_option):
-      l_value = getattr(self.m_cmdOpts, "parse_%s_%s" % (p_section, p_option))
+      l_name  = self._cmd_attribute_name(p_section, p_option)
+      l_value = getattr(self.m_cmdOpts, l_name)
       return l_value != None
     return False
 

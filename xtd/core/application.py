@@ -15,7 +15,7 @@ from .error.exception     import ConfigException, XtdException
 #------------------------------------------------------------------#
 
 class Application(metaclass=mixin.Singleton):
-  def __init__(self, p_name = sys.argv[0]):
+  def __init__(self, p_name=None):
     self.m_name    = p_name
     self.m_argv    = []
     self.m_config  = config.manager.ConfigManager()
@@ -23,10 +23,14 @@ class Application(metaclass=mixin.Singleton):
     self.m_stat    = None
     self.m_param   = None
     self.m_logger  = None
+    if self.m_name is None:
+      self.m_name = sys.argv[0]
+
+    self.m_config.set_usage("%s [options]" % self.m_name)
 
     self.m_config.register_section("general", "General Settings", [{
       "name"        : "config-file",
-      "default"     : "%s.json" % self.m_name,
+      "default"     : "%(name)s/%(name)s.json" % {"name" : self.m_name},
       "description" : "use FILE as configuration file",
       "longopt"     : "--config-file",
       "checks"      : config.checkers.is_file(p_read=True)

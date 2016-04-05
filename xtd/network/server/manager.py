@@ -36,16 +36,18 @@ class ServerManager:
       return None
 
   #pylint: disable=protected-access
-  @staticmethod
-  def listen(p_class,
+  @classmethod
+  def listen(cls,
              p_socket,
              p_nbThreads=10,
              p_tls=False,
              p_cacert=None,
              p_cert=None,
              p_key=None):
-    if not p_class.ms_initialized:
+
+    if not cls.ms_initialized:
       raise XtdException(__name__, "you must initialize server manager first")
+
     l_server = cherrypy._cpserver.Server()
     p_socket = urllib.parse.urlparse(p_socket)
     if p_socket.scheme == "tcp":
