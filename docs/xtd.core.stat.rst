@@ -1,6 +1,11 @@
 xtd.core.stat package
 =====================
 
+.. automodule:: xtd.core.stat
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -37,10 +42,3 @@ xtd.core.stat.writter module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: xtd.core.stat
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -1,6 +1,11 @@
 xtd.core.logger package
 =======================
 
+.. automodule:: xtd.core.logger
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -37,10 +42,3 @@ xtd.core.logger.tools module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: xtd.core.logger
-    :members:
-    :undoc-members:
-    :show-inheritance:

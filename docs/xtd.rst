@@ -1,6 +1,11 @@
 xtd package
 ===========
 
+.. automodule:: xtd
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -9,10 +14,3 @@ Subpackages
     xtd.core
     xtd.network
 
-Module contents
----------------
-
-.. automodule:: xtd
-    :members:
-    :undoc-members:
-    :show-inheritance:
