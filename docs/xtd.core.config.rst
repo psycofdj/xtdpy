@@ -1,6 +1,11 @@
 xtd.core.config package
 =======================
 
+.. automodule:: xtd.core.config
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -29,10 +34,3 @@ xtd.core.config.manager module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: xtd.core.config
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -1,6 +1,11 @@
 xtd.network.client package
 ==========================
 
+.. automodule:: xtd.network.client
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -13,10 +18,3 @@ xtd.network.client.asynclient module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: xtd.network.client
-    :members:
-    :undoc-members:
-    :show-inheritance:

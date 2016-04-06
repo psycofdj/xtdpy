@@ -1,6 +1,11 @@
 xtd.core.error package
 ======================
 
+.. automodule:: xtd.core.error
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -13,10 +18,3 @@ xtd.core.error.exception module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: xtd.core.error
-    :members:
-    :undoc-members:
-    :show-inheritance:

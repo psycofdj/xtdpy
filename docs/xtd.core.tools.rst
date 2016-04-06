@@ -1,6 +1,11 @@
 xtd.core.tools package
 ======================
 
+.. automodule:: xtd.core.tools
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -37,10 +42,3 @@ xtd.core.tools.url module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: xtd.core.tools
-    :members:
-    :undoc-members:
-    :show-inheritance:

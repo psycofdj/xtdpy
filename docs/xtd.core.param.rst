@@ -1,6 +1,11 @@
 xtd.core.param package
 ======================
 
+.. automodule:: xtd.core.param
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -13,10 +18,3 @@ xtd.core.param.manager module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: xtd.core.param
-    :members:
-    :undoc-members:
-    :show-inheritance:

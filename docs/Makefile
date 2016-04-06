@@ -55,7 +55,7 @@ clean:
 
 .PHONY: api
 api:
-	@sphinx-apidoc -f -o . ../xtd/ ../xtd/test/
+	@sphinx-apidoc -M -f -o . ../xtd/ ../xtd/test/
 	@rm -f modules.rst
 
 .PHONY: html

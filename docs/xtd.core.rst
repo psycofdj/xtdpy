@@ -1,6 +1,11 @@
 xtd.core package
 ================
 
+.. automodule:: xtd.core
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -33,10 +38,3 @@ xtd.core.mixin module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: xtd.core
-    :members:
-    :undoc-members:
-    :show-inheritance:

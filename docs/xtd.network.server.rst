@@ -1,6 +1,11 @@
 xtd.network.server package
 ==========================
 
+.. automodule:: xtd.network.server
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -61,10 +66,3 @@ xtd.network.server.tools module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: xtd.network.server
-    :members:
-    :undoc-members:
-    :show-inheritance:
