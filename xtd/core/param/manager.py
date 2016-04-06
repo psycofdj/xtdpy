@@ -32,8 +32,6 @@ class Param:
 
   New callbacks can be registered with :obj:`listen`
 
-  
-
   Note:
      Each callback must respect the following prototype :
      ``function(p_parameter, p_oldValue, p_newValue)``

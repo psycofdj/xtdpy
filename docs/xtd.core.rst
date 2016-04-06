@@ -1,6 +1,11 @@
 xtd.core package
 ================
 
+.. automodule:: xtd.core
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -16,27 +21,8 @@ Subpackages
 Submodules
 ----------
 
-xtd.core.application module
----------------------------
+.. toctree::
 
-.. automodule:: xtd.core.application
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   xtd.core.application
+   xtd.core.mixin
 
-xtd.core.mixin module
----------------------
-
-.. automodule:: xtd.core.mixin
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: xtd.core
-    :members:
-    :undoc-members:
-    :show-inheritance:

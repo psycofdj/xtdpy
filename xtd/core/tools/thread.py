@@ -57,6 +57,10 @@ class SafeThread(threading.Thread):
 #-----------------------------------------------------------------------------#
 
 class SafeThreadGroup:
+  STATUS_STARTED = 1
+  STATUS_STOPPED = 2
+  STATUS_JOINED  = 3
+
   def __init__(self, p_name):
     self.m_name    = p_name
     self.m_threads = []
@@ -66,29 +70,37 @@ class SafeThreadGroup:
       raise exception.XtdException(self.m_name, "child thread must be SafeThread objects")
     self.m_threads.append(p_obj)
 
+
   def start(self):
-    logger.debug(self.m_name, "starting all %d threads", len(self.m_threads))
-    for c_thread in self.m_threads:
-      c_thread.start()
+    if len(self.m_threads):
+      logger.debug(self.m_name, "starting all %d threads", len(self.m_threads))
+      for c_thread in self.m_threads:
+        c_thread.start()
 
   def stop(self):
-    logger.debug(self.m_name, "stopping all %d threads", len(self.m_threads))
-    for c_thread in self.m_threads:
-      c_thread.stop()
+    if len(self.m_threads):
+      logger.debug(self.m_name, "stopping all %d threads", len(self.m_threads))
+      for c_thread in self.m_threads:
+        c_thread.stop()
 
   def join(self):
-    logger.debug(self.m_name, "joinning all %d threads", len(self.m_threads))
-    while True:
-      try:
-        l_alive = False
-        for c_thread in self.m_threads:
-          c_thread.join(1)
-          l_alive = l_alive or c_thread.isAlive()
-        if not l_alive:
-          break
-      except KeyboardInterrupt:
-        logger.warning(self.m_name, "recieved keyboard interrupt, preaparing for exit")
-        self.stop()
-    logger.debug(self.m_name, "all %d threads joinned", len(self.m_threads))
+    if len(self.m_threads):
+      logger.debug(self.m_name, "joining all %d threads", len(self.m_threads))
+      while True:
+        try:
+          l_alive = False
+          for c_thread in self.m_threads:
+            c_thread.join(1)
+            l_alive = l_alive or c_thread.isAlive()
+          if not l_alive:
+            break
+        except KeyboardInterrupt:
+          logger.warning(self.m_name, "recieved keyboard interrupt, preaparing for exit")
+          self.stop()
+      logger.debug(self.m_name, "all %d threads joined", len(self.m_threads))
 
 #-----------------------------------------------------------------------------#
+
+# Local Variables:
+# ispell-local-dictionary: "american"
+# End:

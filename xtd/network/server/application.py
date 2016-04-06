@@ -72,7 +72,7 @@ class ServerApplication(Application):
     }])
 
 
-  def define_counters(self):
+  def _initialize_counters(self):
     self.m_stat.add_counter("core.server.http", ServerManager.get_counter())
 
   def _initialize_server(self):
@@ -145,6 +145,7 @@ class ServerApplication(Application):
     super().initialize()
     self._check_config()
     self._initialize_server()
+    self._initialize_counters()
 
   def start(self):
     super().start()
@@ -159,4 +160,5 @@ class ServerApplication(Application):
     ServerManager.stop()
 
   def process(self):
-    return 0
+    return 0, False
+

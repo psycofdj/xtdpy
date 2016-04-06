@@ -1,0 +1,12 @@
+{
+  "log" : {
+    "config" : {},
+    "override" : {
+      "loggers" : {
+        "root" : {
+          "level" : 10
+        }
+      }
+    }
+  }
+}

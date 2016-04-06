@@ -126,6 +126,9 @@ class CheckersTest(unittest.TestCase):
     self.assertEqual(l_val, ["1", "2", "3", "4"])
     l_val = checkers.check_array("section", "name", "1,2,3,4", p_check=checkers.check_int)
     self.assertEqual(l_val, [1, 2, 3, 4])
+    l_value = "on,on;off,no;true,false"
+    l_value = checkers.check_array("section", "name", l_value, checkers.is_array(p_check=checkers.check_bool), p_delim=";")
+    self.assertEqual(l_value, [[True, True], [False, False], [True, False]])
 
   def test_check_host(self):
     l_val = checkers.check_host("section", "name", "www.github.com")
