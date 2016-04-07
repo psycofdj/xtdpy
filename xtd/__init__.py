@@ -245,9 +245,23 @@ Statistics
 
 """
 
+__description__  = "High level library to quickly build strong python apps"
+__version__      = "0.4.0"
+__author__       = "Xavier MARCELET <xavier@marcelet.com>"
+__url__          = "https://github.com/psycofdj/xtd"
+__download_url__ = "https://github.com/psycofdj/xtd/tarball/%s" % __version__
+__keywords__     = ['xtd', 'python', 'library', 'high-level']
+__classifiers__  = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Operating System :: Unix",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Software Development :: Libraries :: Python Modules"
+]
 
 
-__author__    = "Xavier MARCELET <xavier@marcelet.com>"
 
 #------------------------------------------------------------------#
 

@@ -2,6 +2,8 @@ SOURCES=$(shell find . -name '*.py' | grep -v test_)
 SOURCEDIRS=$(shell find . -name '*.py' | grep -v test | xargs dirname | sort -u)
 TESTS=$(shell find . -name 'test_*.py')
 
+all: cov covdoc cov pylint dist
+
 .doc-built: $(SOURCES) $(TESTS) Makefile
 	@make -s -C docs html
 	@touch $@
@@ -17,6 +19,10 @@ check: $(SOURCES)
 	@./devtools/coverage.sh
 	@touch $@
 
+.dist-built: $(SOURCES) Makefile setup.py setup.cfg
+	@./setup.py sdist
+	@touch $@
+
 .pylint-built: $(SOURCES) Makefile
 	@mkdir -p build/pylint/
 	@./devtools/xtdlint.py --rcfile=.pylintrc -j4 xtd -f html > build/pylint/index.html || true
@@ -27,12 +33,11 @@ check: $(SOURCES)
 	@coverage3 html -d build/coverage
 	@touch $@
 
-all: cov covdoc cov pylint
-
 cov: .cov-built .cov-report-built
 covdoc: .covdoc-built
 doc: .doc-built
 pylint: .pylint-built
+dist: .dist-built
 
 show-cov: .cov-report-built
 	@sensible-browser build/coverage/index.html &
@@ -46,4 +51,4 @@ show-pylint: .pylint-built
 show: all show-doc show-cov show-covdoc show-pylint
 
 clean:
-	@rm -rf xtd.egg-info dist build .cov-built .cov-report-built .coverage  .doc-built .covdoc-built
+	@rm -rf .dist-built xtd.egg-info dist build .cov-built .cov-report-built .coverage  .doc-built .covdoc-built

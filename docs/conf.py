@@ -41,7 +41,7 @@ extensions = [
 
 intersphinx_mapping = {'python': ('https://docs.python.org/3.4', None)}
 
-sys.path.append("..")
+sys.path.insert(0, "..")
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
