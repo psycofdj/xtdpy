@@ -65,3 +65,4 @@ build
 .doc-built
 .pylint-built
 .lint-built
+.dist-built
