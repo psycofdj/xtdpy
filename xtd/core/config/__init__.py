@@ -1,10 +1,11 @@
 # -*- coding: utf-8
 #------------------------------------------------------------------#
 
-__author__    = "Xavier MARCELET <xavier@marcelet.com>"
+__author__ = "Xavier MARCELET <xavier@marcelet.com>"
 
 #------------------------------------------------------------------#
 
+import sys
 from .manager import ConfigManager
 
 #------------------------------------------------------------------#

@@ -16,7 +16,7 @@ from ..error.exception import XtdException
 
 class DiskWritter(StatHandler):
   def __init__(self, p_directory, p_interval = 50):
-    super().__init__(__name__ + "." + DiskWritter.__class__.__name__, p_interval)
+    super().__init__(__name__ + "." + self.__class__.__name__, p_interval)
     self.m_dir = p_directory
     self._create_dir(self.m_dir)
 
@@ -48,7 +48,7 @@ class DiskWritter(StatHandler):
 
 class HttpWritter(StatHandler):
   def __init__(self, p_url, p_interval = 50):
-    super().__init__(__name__ + "." + HttpWritter.__class__.__name__, p_interval)
+    super().__init__(__name__ + "." + self.__class__.__name__, p_interval)
     self.m_url = p_url
 
   def send_request(self, p_json):

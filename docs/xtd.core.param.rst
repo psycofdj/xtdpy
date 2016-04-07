@@ -9,12 +9,7 @@ xtd.core.param package
 Submodules
 ----------
 
-xtd.core.param.manager module
------------------------------
+.. toctree::
 
-.. automodule:: xtd.core.param.manager
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   xtd.core.param.manager
 

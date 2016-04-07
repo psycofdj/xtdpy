@@ -9,28 +9,9 @@ xtd.core.config package
 Submodules
 ----------
 
-xtd.core.config.checkers module
--------------------------------
+.. toctree::
 
-.. automodule:: xtd.core.config.checkers
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-xtd.core.config.formatter module
---------------------------------
-
-.. automodule:: xtd.core.config.formatter
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-xtd.core.config.manager module
-------------------------------
-
-.. automodule:: xtd.core.config.manager
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   xtd.core.config.checkers
+   xtd.core.config.formatter
+   xtd.core.config.manager
 

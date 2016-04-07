@@ -9,12 +9,7 @@ xtd.network.client package
 Submodules
 ----------
 
-xtd.network.client.asynclient module
-------------------------------------
+.. toctree::
 
-.. automodule:: xtd.network.client.asynclient
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   xtd.network.client.asynclient
 

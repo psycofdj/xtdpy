@@ -1,0 +1,34 @@
+$ python3 test.py --help
+
+Usage: MergeApplication [options]
+
+Options:
+  --help                       show this help message and exit
+
+  General Settings:
+    --config-file=ARG          use FILE as configuration file [default:MergeApplication/MergeApplication.json]
+
+  Input settings:
+    --input-directory=ARG      Read input files from given directory [default:./work_to_do/]
+    --input-count=ARG          Number of file to read in directory [default:1]
+
+  Logging Settings:
+    --log-config=ARG           Logging configuration [default:{}]
+    --log-override=ARG         override part of logging configuration [default:{}]
+
+  Output settings:
+    --output-file              Destination file [default:False]
+
+  Persitent Param Settings:
+    --param-directory=ARG      Destination directory for admin persistent parameters [default:/tmp/snmp/MergeApplication/admin]
+
+  Stats Settings:
+    --stat-writters=ARG        Enabled given stat output writter. Possibles values :
+                               * disk : write counters to --stat-disk-directory path each --stat-disk-interval seconds
+                               * http : post counters in json format to --stat-http-url url each --stat-http-interval seconds
+                               Can specify a comma separated combinaison of theses values
+                               [default:['disk']]
+    --stat-disk-directory=ARG  Destination directory for counter disk writter [default:/tmp/snmp/MergeApplication/stat/]
+    --stat-disk-interval=ARG   Interval in second between two disk outputs [default:50]
+    --stat-http-url=ARG        Destination POST url for http stat writter [default:http://localhost/counter]
+    --stat-http-interval=ARG   Interval in second between two http outputs [default:50]

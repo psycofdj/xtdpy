@@ -87,6 +87,12 @@ DEFAULT_CONFIG = {
     }
   }
 }
+"""Default logging configuration
+
+  .. todo:: some doc
+
+"""
+
 
 
 #------------------------------------------------------------------#
@@ -117,6 +123,10 @@ class WrapperLogger(logging.Logger):
 #------------------------------------------------------------------#
 
 class LogManager(metaclass=mixin.Singleton):
+  """
+
+  .. todo:: some 
+  """
   def __init__(self):
     self.m_logs       = []
     self.m_handlers   = {}
@@ -278,3 +288,8 @@ class LogManager(metaclass=mixin.Singleton):
     except Exception as l_error:
       raise XtdException(__name__, "unable to initialize logging facility : %s" % str(l_error))
     tools.info(__name__, "facility initialized")
+
+
+# Local Variables:
+# ispell-local-dictionary: "american"
+# End:

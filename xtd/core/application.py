@@ -15,11 +15,35 @@ from .error.exception     import ConfigException, XtdException
 #------------------------------------------------------------------#
 
 class Application(metaclass=mixin.Singleton):
+  """XTD main application object
+
+  Users must inherit this class :
+
+  * register program's arguments in their ``__init__`` method
+  * and optionally override :py:meth:`initialize`
+  * override :py:meth:`process` and code their program behavior
+  * call :py:meth:`execute` at top level
+
+
+  ``p_name`` parameter is used for various purpose such as:
+
+    * default usage
+    * default --config-file value
+    * default disk-synced parameters output directory path
+    * default statistic disk output directory path
+
+
+  Args:
+    p_name (str): application's name (optional). Defaults to ``sys.argv[0]``
+
+  Attributes:
+    m_name (str): application's name
+
+  """
   def __init__(self, p_name=None):
     self.m_name    = p_name
     self.m_argv    = []
     self.m_config  = config.manager.ConfigManager()
-    self.m_signals = []
     self.m_stat    = None
     self.m_param   = None
     self.m_logger  = None
@@ -38,17 +62,6 @@ class Application(metaclass=mixin.Singleton):
     }])
 
     self.config().register_section("log", "Logging Settings", [{
-      "name"        : "level",
-      "default"     : "%s.log" % self.m_name,
-      "description" : """set logging level to VAL\n
-                       * 10 debug\n
-                       * 20 info\n
-                       * 30 warning\n
-                       * 40 error\n
-                       * 50 critical\n
-      """,
-      "checks"      : config.checkers.is_enum(p_values=[10,20,30,40,50])
-    },{
       "name"        : "config",
       "default"     : {},
       "description" : "Logging configuration",
@@ -100,14 +113,127 @@ class Application(metaclass=mixin.Singleton):
     }])
 
   def config(self):
+    """Get the :py:class:`~xtd.core.config.manager.ConfigManager` instance
+
+    Returns:
+      config.manager.ConfigManager: ConfigManager instance
+    """
     return self.m_config
+
+  def stat(self):
+    """Get the :py:class:`~xtd.core.stat.manager.StatManager` instance
+
+    Returns:
+      stat.manager.StatManager: StatManager instance
+    """
+    return self.m_stat
 
   # pylint: disable=no-self-use
   def process(self):
-    return 0
+    """Main application body
 
-  def define_counters(self):
-    pass
+    The child class must override this method. Since default behavior
+    is to log an error, you should not call parent's method
+
+    Returns:
+      int, bool: program's exit code and True if object should call stop method before
+        joining
+
+    """
+    logger.info(__name__, "default process() method, you probably want to override it")
+    return 1, True
+
+  def initialize(self):
+    """Initializes application
+
+    Specifically:
+
+      * application's configuration facility, See :py:mod:`xtd.core.config`
+      * application's logging facility, See :py:mod:`xtd.core.logger`
+      * application's memory parameters, See :py:mod:`xtd.core.param`
+      * application's statistics, See :py:mod:`xtd.core.stat`
+
+    Any child class that overrides this method should call ``super().initialize()``
+    """
+    self._initialize_config()
+    self._initialize_log()
+    self._initialize_stat()
+    self._initialize_param()
+
+  def start(self):
+    """Start background modules
+
+    Any child class that overrides this method should call ``super().start()``
+    or start :py:class:`~xtd.core.stat.manager.StatManager` by hand
+    """
+    self.m_stat.start()
+
+  def stop(self):
+    """Stop background modules
+
+    Any child class that overrides this method should call ``super().stop()``
+    or stop :py:class:`~xtd.core.stat.manager.StatManager` by hand
+    """
+    self.m_stat.stop()
+
+  def join(self):
+    """Join background modules
+
+    Any child class that overrides this method should call ``super().join()``
+    or join :py:class:`~xtd.core.stat.manager.StatManager` by hand
+    """
+    self.m_stat.join()
+
+
+  def execute(self, p_argv=None):
+    """Main application entry point
+
+    Exits with code returned by :py:meth:`process`.
+
+    .. note:: During the initializing phase :
+
+      * Any :py:class:`~xtd.core.error.exception.ConfigException` leads to the display
+        of the error, followed by the program usage and ends with a ``sys.exit(1)``.
+      * Any :py:class:`~xtd.core.error.exception.XtdException` leads to the display
+        of the error and ends with a ``sys.exit(1)``.
+
+      During the process phase :
+
+      * Any :py:class:`~xtd.core.error.exception.XtdException` leads to the log
+        of the error and ends with a ``sys.exit(1)``.
+
+    Args:
+      p_argv (list) : program's command-line argument. Defaults to None.
+        If none, arguments are taken from :py:obj:`sys.argv`
+
+    """
+    if p_argv is None:
+      p_argv = sys.argv
+    self.m_argv = p_argv
+
+    try:
+      self.initialize()
+    except ConfigException as l_error:
+      print(l_error)
+      self.m_config.help()
+      sys.exit(1)
+    except XtdException as l_error:
+      print(l_error)
+      sys.exit(1)
+
+    try:
+      logger.info(__name__, "starting process")
+      self.start()
+      l_code, l_stop = self.process()
+      if l_stop:
+        self.stop()
+      self.join()
+      logger.info(__name__, "process finished (status=%d)", l_code)
+      sys.exit(l_code)
+    except XtdException as l_error:
+      logger.exception(__name__, "uncaught exception '%s', exit(1)", l_error)
+      sys.exit(1)
+
 
   def _initialize_config(self):
     self.m_config.initialize()
@@ -135,43 +261,6 @@ class Application(metaclass=mixin.Singleton):
   def _initialize_param(self):
     self.m_param = param.manager.ParamManager(config.get("param", "directory"))
 
-  def initialize(self):
-    self._initialize_config()
-    self._initialize_log()
-    self._initialize_stat()
-    self._initialize_param()
-
-  def start(self):
-    self.m_stat.start()
-
-  def join(self):
-    self.m_stat.join()
-
-  def stop(self):
-    self.m_stat.stop()
-
-  def execute(self, p_argv=None):
-    if p_argv is None:
-      p_argv = sys.argv
-    self.m_argv = p_argv
-
-    try:
-      self.initialize()
-      self.define_counters()
-    except ConfigException as l_error:
-      print(l_error)
-      self.m_config.help()
-      sys.exit(1)
-    except XtdException as l_error:
-      print(l_error)
-      sys.exit(1)
-
-    try:
-      logger.info(__name__, "starting process")
-      self.start()
-      l_code = self.process()
-      self.join()
-      logger.info(__name__, "process finished (status=%d)", l_code)
-    except XtdException as l_error:
-      logger.exception("core.application", "uncaught exception '%s', exit(1)", l_error)
-      sys.exit(1)
+# Local Variables:
+# ispell-local-dictionary: "american"
+# End:

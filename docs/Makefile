@@ -55,11 +55,18 @@ clean:
 
 .PHONY: api
 api:
-	@sphinx-apidoc -M -f -o . ../xtd/ ../xtd/test/
-	@rm -f modules.rst
+	sphinx-apidoc -d 999 -e -M -f -o . ../xtd/ ../xtd/test/
+	rm -f modules.rst
 
 .PHONY: html
 html: api
+	$(SPHINXBUILD) -qW -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	@echo
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+
+
+.PHONY: html-only
+html-only:
 	$(SPHINXBUILD) -qW -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."

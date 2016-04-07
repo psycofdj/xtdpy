@@ -34,10 +34,14 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
-    'sphinx.ext.viewcode'
+    'sphinx.ext.viewcode',
+    'sphinx.ext.intersphinx'
 ]
 
-sys.path.append("..")
+
+intersphinx_mapping = {'python': ('https://docs.python.org/3.4', None)}
+
+sys.path.insert(0, "..")
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -51,12 +55,12 @@ source_suffix = '.rst'
 #source_encoding = 'utf-8-sig'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'xtd'
 
 # General information about the project.
 project = 'xtd'
-copyright = '2016, Xavier MARCELET'
-author = 'Xavier MARCELET'
+copyright = 'Gnu GPL 3'
+author = 'Xavier MARCELET <xavier@marcelet.com>'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -129,7 +133,7 @@ html_theme = 'sphinx_rtd_theme'
 
 # The name for this set of Sphinx documents.
 # "<project> v<release> documentation" by default.
-#html_title = 'xtd v0.2'
+html_title = 'xtd'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None

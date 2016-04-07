@@ -9,12 +9,7 @@ xtd.core.error package
 Submodules
 ----------
 
-xtd.core.error.exception module
--------------------------------
+.. toctree::
 
-.. automodule:: xtd.core.error.exception
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   xtd.core.error.exception
 
