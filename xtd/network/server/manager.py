@@ -11,10 +11,10 @@ import re
 import logging
 import cherrypy
 
-from xtd.core                 import logger
-from xtd.core.stat            import counter
-from .                        import tools
-from xtd.core.error.exception import XtdException
+from xtd.core       import logger
+from xtd.core.stat  import counter
+from .              import tools
+from xtd.core.error import XtdError
 
 #------------------------------------------------------------------#
 
@@ -46,7 +46,7 @@ class ServerManager:
              p_key=None):
 
     if not cls.ms_initialized:
-      raise XtdException(__name__, "you must initialize server manager first")
+      raise XtdError(__name__, "you must initialize server manager first")
 
     l_server = cherrypy._cpserver.Server()
     p_socket = urllib.parse.urlparse(p_socket)
@@ -117,7 +117,7 @@ class ServerManager:
       p_conf = {}
 
     if not cls.ms_initialized:
-      raise XtdException(__name__, "you must initialize server manager first")
+      raise XtdError(__name__, "you must initialize server manager first")
     l_app = cherrypy.tree.mount(p_handler, p_path, p_conf)
     l_app.log.error_log = logging.getLogger(p_logger + ".error")
     l_app.log.access_log = logging.getLogger(p_logger + ".access")
@@ -125,24 +125,24 @@ class ServerManager:
   @classmethod
   def subscribe(cls, p_channel, p_handler, p_prio):
     if not cls.ms_initialized:
-      raise XtdException(__name__, "you must initialize server manager first")
+      raise XtdError(__name__, "you must initialize server manager first")
     cherrypy.engine.subscribe(p_channel, p_handler, p_prio)
 
   @classmethod
 
   def start(cls):
     if not cls.ms_initialized:
-      raise XtdException(__name__, "you must initialize server manager first")
+      raise XtdError(__name__, "you must initialize server manager first")
     cherrypy.engine.start()
 
   @classmethod
   def join(cls):
     if not cls.ms_initialized:
-      raise XtdException(__name__, "you must initialize server manager first")
+      raise XtdError(__name__, "you must initialize server manager first")
     cherrypy.engine.block()
 
   @classmethod
   def stop(cls):
     if not cls.ms_initialized:
-      raise XtdException(__name__, "you must initialize server manager first")
+      raise XtdError(__name__, "you must initialize server manager first")
     cherrypy.engine.stop()

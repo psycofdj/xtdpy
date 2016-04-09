@@ -10,9 +10,9 @@ import urllib.parse
 import io
 import pycurl
 
-from xtd.core                 import logger
-from xtd.core.tools           import url
-from xtd.core.error.exception import XtdException
+from xtd.core       import logger
+from xtd.core.tools import url
+from xtd.core.error import XtdError
 
 #------------------------------------------------------------------#
 
@@ -233,7 +233,7 @@ class AsyncCurlClient:
         self.m_handle.setopt(c_opt, c_val)
     except pycurl.error:
       logger.error(__name__, "unable to set option '%s' to value '%s'", c_opt, str(c_val))
-      raise XtdException(__name__, "unable to set option '%s' to value '%s'" % (c_opt, str(c_val)))
+      raise XtdError(__name__, "unable to set option '%s' to value '%s'" % (c_opt, str(c_val)))
 
   def _read_header(self, p_line):
     # HTTP standard header encoding
@@ -251,7 +251,7 @@ class AsyncCurlClient:
         self.m_handle.setopt(c_opt, c_val)
     except pycurl.error:
       logger.error(__name__, "unable to set option '%s' to value '%s'", c_opt, str(c_val))
-      raise XtdException(__name__, "unable to set option '%s' to value '%s'" % (c_opt, str(c_val)))
+      raise XtdError(__name__, "unable to set option '%s' to value '%s'" % (c_opt, str(c_val)))
 
   def _init_method(self):
     if self.m_request.m_method == "GET":
@@ -350,7 +350,7 @@ class AsyncCurlMultiClient:
         self.m_handle.setopt(c_opt, c_val)
     except pycurl.error:
       logger.error(__name__, "unable to set option '%s' to value '%s'", c_opt, str(c_val))
-      raise XtdException(__name__, "unable to set option '%s' to value '%s'" % (c_opt, str(c_val)))
+      raise XtdError(__name__, "unable to set option '%s' to value '%s'" % (c_opt, str(c_val)))
 
   def close(self):
     for c_client in self.m_clients:

@@ -1,15 +1,7 @@
-xtd.core.error package
-======================
+xtd.core.error module
+=====================
 
 .. automodule:: xtd.core.error
     :members:
     :undoc-members:
     :show-inheritance:
-
-Submodules
-----------
-
-.. toctree::
-
-   xtd.core.error.exception
-

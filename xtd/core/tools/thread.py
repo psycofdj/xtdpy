@@ -9,7 +9,7 @@ import threading
 import time
 
 from ..      import logger
-from ..error import exception
+from ..      import error
 #-----------------------------------------------------------------------------#
 
 class SafeThread(threading.Thread):
@@ -67,7 +67,7 @@ class SafeThreadGroup:
 
   def add_thread(self, p_obj):
     if not issubclass(p_obj.__class__, SafeThread):
-      raise exception.XtdException(self.m_name, "child thread must be SafeThread objects")
+      raise error.XtdError(self.m_name, "child thread must be SafeThread objects")
     self.m_threads.append(p_obj)
 
 

@@ -8,9 +8,9 @@ __author__    = "Xavier MARCELET <xavier@marcelet.com>"
 import os
 import requests
 
-from .handler          import StatHandler
-from ..                import logger
-from ..error.exception import XtdException
+from .handler import StatHandler
+from ..       import logger
+from ..error  import XtdError
 
 #------------------------------------------------------------------#
 
@@ -27,7 +27,7 @@ class DiskWritter(StatHandler):
         os.makedirs(p_dir, mode=0o0750)
       except Exception as l_error:
         l_fmt = "unable to create output directory '%s' : %s"
-        raise XtdException(__name__,  l_fmt % (p_dir, str(l_error)))
+        raise XtdError(__name__,  l_fmt % (p_dir, str(l_error)))
 
   def _write_item(self, p_path, p_name, p_value):
     l_path = os.path.join(self.m_dir, p_path.replace(".", "/"))
@@ -76,3 +76,7 @@ class HttpWritter(StatHandler):
     self.send_request(l_res)
 
 #------------------------------------------------------------------#
+
+# Local Variables:
+# ispell-local-dictionary: "american"
+# End:

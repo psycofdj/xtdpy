@@ -10,7 +10,7 @@ import os
 import unittest
 
 from xtd.core.param import manager
-from xtd.core.error import exception
+from xtd.core       import error
 from xtd.core       import mixin
 
 #------------------------------------------------------------------#
@@ -38,10 +38,10 @@ class ParamTest(unittest.TestCase):
 
     def only_even(p_param, p_old, p_new):
       if p_new % 2 == 1:
-        raise exception.XtdException(__name__, "must be even")
+        raise error.XtdError(__name__, "must be even")
     def only_switch(p_param, p_old, p_new):
       if (p_new % 2) == (p_old % 2):
-        raise exception.XtdException(__name__, "must change even <-> odd")
+        raise error.XtdError(__name__, "must change even <-> odd")
 
     self.setUp(p_value = 0, p_listeners=only_even)
     self.assertTrue(self.m_obj.set(2))
@@ -67,11 +67,11 @@ class ConfigManagerTest(unittest.TestCase):
 
   def test__create_dir(self):
     # permission denied
-    with self.assertRaises(exception.XtdException):
+    with self.assertRaises(error.XtdError):
       self.m_obj._create_dir("/cant_write")
 
     # is a file
-    with self.assertRaises(exception.XtdException):
+    with self.assertRaises(error.XtdError):
       self.m_obj._create_dir("/dev/null")
 
     # simple create
@@ -102,13 +102,13 @@ class ConfigManagerTest(unittest.TestCase):
       self.assertEqual(l_content[0], "[4, 5, 6, 7]")
 
     # not seriable value
-    with self.assertRaises(exception.XtdException):
+    with self.assertRaises(error.XtdError):
       l_param = manager.Param("list", [1,2,3,4])
       self.m_obj._write(l_param, l_param.get(), self)
 
     # file note writable
     self.setUp("/dev")
-    with self.assertRaises(exception.XtdException):
+    with self.assertRaises(error.XtdError):
       l_param = manager.Param("int", 1)
       self.m_obj._write(l_param, l_param.get(), 2)
 
@@ -123,7 +123,7 @@ class ConfigManagerTest(unittest.TestCase):
     self.m_obj.register("name", "value")
 
     # duplicated register
-    with self.assertRaises(exception.XtdException):
+    with self.assertRaises(error.XtdError):
       self.m_obj.register("name", "other")
 
     # synced register
@@ -137,7 +137,7 @@ class ConfigManagerTest(unittest.TestCase):
     self.m_obj.register("name", "value")
     self.assertEqual(self.m_obj.get("name").get(), "value")
 
-    with self.assertRaises(exception.XtdException):
+    with self.assertRaises(error.XtdError):
       self.m_obj.get("name")
 
   def test_get(self):
@@ -145,14 +145,14 @@ class ConfigManagerTest(unittest.TestCase):
     self.assertEqual(self.m_obj.set("name", "value2"), True)
     self.assertEqual(self.m_obj.get("name"), "value2")
 
-    with self.assertRaises(exception.XtdException):
+    with self.assertRaises(error.XtdError):
       self.m_obj.set("doesnotexist", "value")
 
   def test_listen(self):
     self.m_obj.register("name", "value")
     self.m_obj.listen("name", lambda x,y: x)
 
-    with self.assertRaises(exception.XtdException):
+    with self.assertRaises(error.XtdError):
       self.m_obj.listen("doesnotexist", lambda x,y: x)
 
   def test_get_names(self):

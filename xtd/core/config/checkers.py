@@ -12,10 +12,10 @@ import re
 import socket
 from functools import partial
 
-from ..error.exception import ConfigValueFileException, ConfigValueFileModeException
-from ..error.exception import ConfigValueDirException, ConfigValueDirModeException
-from ..error.exception import ConfigValueTypeException, ConfigValueLimitsException
-from ..error.exception import ConfigValueEnumException, ConfigValueException
+from ..error import ConfigValueFileError, ConfigValueFileModeError
+from ..error import ConfigValueDirError, ConfigValueDirModeError
+from ..error import ConfigValueTypeError, ConfigValueLimitsError
+from ..error import ConfigValueEnumError, ConfigValueError
 from ..tools           import url
 
 #------------------------------------------------------------------#
@@ -39,21 +39,21 @@ def check_file(p_section, p_name, p_value, p_read=False, p_write=False, p_execut
       bool: file absolute path
 
   Raises:
-     ConfigValueFileException: p_value is a directory
-     ConfigValueFileModeException: p_value dosen't meet requested rwx attributes
+     ConfigValueFileError: p_value is a directory
+     ConfigValueFileModeError: p_value dosen't meet requested rwx attributes
   """
   l_absFilePath = os.path.expanduser(p_value)
   l_absFilePath = os.path.abspath(l_absFilePath)
 
   if os.path.isdir(l_absFilePath):
-    raise ConfigValueFileException(p_section, p_name, l_absFilePath)
+    raise ConfigValueFileError(p_section, p_name, l_absFilePath)
 
   if not os.path.exists(l_absFilePath):
     if p_read or not _check_mode(os.path.dirname(l_absFilePath), p_write=True):
-      raise ConfigValueFileModeException(p_section, p_name, p_value, p_read, p_write, p_execute)
+      raise ConfigValueFileModeError(p_section, p_name, p_value, p_read, p_write, p_execute)
   else:
     if not _check_mode(l_absFilePath, p_read, p_write, p_execute):
-      raise ConfigValueFileModeException(p_section, p_name, p_value, p_read, p_write, p_execute)
+      raise ConfigValueFileModeError(p_section, p_name, p_value, p_read, p_write, p_execute)
   return l_absFilePath
 
 # ------------------------------------------------------------------------- #
@@ -73,15 +73,15 @@ def check_dir(p_section, p_name, p_value, p_read=False, p_write=False, p_execute
       bool: directory absolute path
 
   Raises:
-     ConfigValueDirException: p_value is not a directory
-     ConfigValueDirModeException: directory  doesn't meet requested rwx attributes
+     ConfigValueDirError: p_value is not a directory
+     ConfigValueDirModeError: directory  doesn't meet requested rwx attributes
   """
   l_absDirPath = os.path.expanduser(p_value)
   l_absDirPath = os.path.abspath(l_absDirPath)
   if not os.path.isdir(l_absDirPath):
-    raise ConfigValueDirException(p_section, p_name, l_absDirPath)
+    raise ConfigValueDirError(p_section, p_name, l_absDirPath)
   if not _check_mode(l_absDirPath, p_read, p_write, p_execute):
-    raise ConfigValueDirModeException(p_section, p_name, p_value, p_read, p_write, p_execute)
+    raise ConfigValueDirModeError(p_section, p_name, p_value, p_read, p_write, p_execute)
   return l_absDirPath
 
 # ------------------------------------------------------------------------- #
@@ -103,8 +103,8 @@ def check_int(p_section, p_name, p_value, p_min=None, p_max=None):
     int: integer converted value
 
   Raises:
-    ConfigValueTypeException: value is not an integer, nor a int-convertible string
-    ConfigValueLimitsException: value doesn't match requested min and max constraints
+    ConfigValueTypeError: value is not an integer, nor a int-convertible string
+    ConfigValueLimitsError: value doesn't match requested min and max constraints
   """
   if isinstance(p_value, int) and not isinstance(p_value, bool):
     l_value = p_value
@@ -113,14 +113,14 @@ def check_int(p_section, p_name, p_value, p_min=None, p_max=None):
       try:
         l_value = int(p_value)
       except ValueError:
-        raise ConfigValueTypeException(p_section, p_name, p_value, ConfigValueTypeException.INT)
+        raise ConfigValueTypeError(p_section, p_name, p_value, ConfigValueTypeError.INT)
     else:
-      raise ConfigValueTypeException(p_section, p_name, p_value, ConfigValueTypeException.INT)
+      raise ConfigValueTypeError(p_section, p_name, p_value, ConfigValueTypeError.INT)
 
   if (p_min != None) and (l_value < p_min):
-    raise ConfigValueLimitsException(p_section, p_name, l_value, p_min, p_max)
+    raise ConfigValueLimitsError(p_section, p_name, l_value, p_min, p_max)
   if (p_max != None) and (l_value > p_max):
-    raise ConfigValueLimitsException(p_section, p_name, l_value, p_min, p_max)
+    raise ConfigValueLimitsError(p_section, p_name, l_value, p_min, p_max)
   return l_value
 
 # ------------------------------------------------------------------------- #
@@ -138,8 +138,8 @@ def check_float(p_section, p_name, p_value, p_min=None, p_max=None):
     p_max (float): maximum accepted value, default : None
 
   Raises:
-    ConfigValueTypeException: value is not an integer, nor a int-convertible string
-    ConfigValueLimitsException: value doesn't match requested min and max constraints
+    ConfigValueTypeError: value is not an integer, nor a int-convertible string
+    ConfigValueLimitsError: value doesn't match requested min and max constraints
 
   Returns:
     float: float converted value
@@ -151,13 +151,13 @@ def check_float(p_section, p_name, p_value, p_min=None, p_max=None):
       try:
         l_value = float(p_value)
       except ValueError:
-        raise ConfigValueTypeException(p_section, p_name, p_value, ConfigValueTypeException.FLOAT)
+        raise ConfigValueTypeError(p_section, p_name, p_value, ConfigValueTypeError.FLOAT)
     else:
-      raise ConfigValueTypeException(p_section, p_name, p_value, ConfigValueTypeException.FLOAT)
+      raise ConfigValueTypeError(p_section, p_name, p_value, ConfigValueTypeError.FLOAT)
   if (p_min != None) and (l_value < p_min):
-    raise ConfigValueLimitsException(p_section, p_name, l_value, p_min, p_max)
+    raise ConfigValueLimitsError(p_section, p_name, l_value, p_min, p_max)
   if (p_max != None) and (l_value > p_max):
-    raise ConfigValueLimitsException(p_section, p_name, l_value, p_min, p_max)
+    raise ConfigValueLimitsError(p_section, p_name, l_value, p_min, p_max)
   return l_value
 
 # ------------------------------------------------------------------------- #
@@ -176,7 +176,7 @@ def check_bool(p_section, p_name, p_value):
     p_value (str): target value
 
   Raises:
-    ConfigValueTypeException: invalid input boolean
+    ConfigValueTypeError: invalid input boolean
 
   Returns:
     bool: converted value
@@ -184,7 +184,7 @@ def check_bool(p_section, p_name, p_value):
   if isinstance(p_value, bool):
     return p_value
   if not isinstance(p_value, str):
-    raise ConfigValueTypeException(p_section, p_name, p_value, ConfigValueTypeException.BOOL)
+    raise ConfigValueTypeError(p_section, p_name, p_value, ConfigValueTypeError.BOOL)
   if ((p_value.lower() == 'true') or
       (p_value.lower() == 'yes') or
       (p_value.lower() == 'on')):
@@ -193,7 +193,7 @@ def check_bool(p_section, p_name, p_value):
       (p_value.lower() == 'no') or
       (p_value.lower() == 'off')):
     return False
-  raise ConfigValueTypeException(p_section, p_name, p_value, ConfigValueTypeException.BOOL)
+  raise ConfigValueTypeError(p_section, p_name, p_value, ConfigValueTypeError.BOOL)
 
 # ------------------------------------------------------------------------- #
 
@@ -207,13 +207,13 @@ def check_enum(p_section, p_name, p_value, p_values):
     p_values (list): set of possible authorized values
 
   Raises:
-    ConfigValueEnumException: value not found in possible values
+    ConfigValueEnumError: value not found in possible values
 
   Returns:
     bool: input value
   """
   if not p_value in p_values:
-    raise ConfigValueEnumException(p_section, p_name, p_value, p_values)
+    raise ConfigValueEnumError(p_section, p_name, p_value, p_values)
   return p_value
 
 # ------------------------------------------------------------------------- #
@@ -244,7 +244,7 @@ def check_mail(p_section, p_name, p_value):
     p_value (str): input value
 
   Raises:
-    ConfigValueValueException: value not an email
+    ConfigValueValueError: value not an email
 
   Returns:
     bool: input value
@@ -253,7 +253,7 @@ def check_mail(p_section, p_name, p_value):
   if not re.match("^%s$" % l_mailRgx, p_value):
     if not re.match("^[^<]*<%s>$" % l_mailRgx, p_value):
       l_message = "value '%s' is not an email address" % p_value
-      raise ConfigValueException(p_section, p_name, l_message)
+      raise ConfigValueError(p_section, p_name, l_message)
   return p_value
 
 # ------------------------------------------------------------------------- #
@@ -289,7 +289,7 @@ def check_array(p_section, p_name, p_value, p_check=None, p_delim=","):
     p_delim (str) : used as delimiter to split  given str value
 
   Raises:
-    ConfigValueValueException: value not an email
+    ConfigValueValueError: value not an email
 
   Returns:
     list: array-converted value
@@ -316,7 +316,7 @@ def check_host(p_section, p_name, p_value):
     p_value (str): input value
 
   Raises:
-    ConfigValueValueException: value not an hostname
+    ConfigValueValueError: value not an hostname
 
   Returns:
     str: input value
@@ -325,7 +325,7 @@ def check_host(p_section, p_name, p_value):
     socket.gethostbyname(p_value)
   except socket.gaierror:
     l_message = "host '%s' is not valid" % p_value
-    raise ConfigValueException(p_section, p_name, l_message)
+    raise ConfigValueError(p_section, p_name, l_message)
   return p_value
 
 # ------------------------------------------------------------------------- #
@@ -341,7 +341,7 @@ def check_json(p_section, p_name, p_value):
     p_value (str): input value
 
   Raises:
-    ConfigValueValueException: value not a json
+    ConfigValueValueError: value not a json
 
   Returns:
     dict: dict-converted value
@@ -351,8 +351,8 @@ def check_json(p_section, p_name, p_value):
 
   try:
     p_value = json.loads(p_value)
-  except Exception as l_error:
-    raise ConfigValueException(p_section, p_name, "invalid json : %s" % str(l_error))
+  except (ValueError, TypeError) as l_error:
+    raise ConfigValueError(p_section, p_name, "invalid json : %s" % str(l_error))
   return p_value
 
 # ------------------------------------------------------------------------- #
@@ -368,7 +368,7 @@ def check_socket(p_section, p_name, p_value, p_schemes=None, p_checkUnix=False):
     p_checkUnix (bool) : authorize "unix+//<file>/path" based url
 
   Raises:
-    ConfigValueValueException: value a valid socket url
+    ConfigValueValueError: value a valid socket url
 
   Returns:
     str: input value
@@ -379,7 +379,7 @@ def check_socket(p_section, p_name, p_value, p_schemes=None, p_checkUnix=False):
   if len(p_schemes) and (not l_parts[0] in p_schemes):
     l_format = "invalid url '%s', scheme '%s' not in '%s'"
     l_message = l_format % (p_value, l_parts[0], str(p_schemes))
-    raise ConfigValueException(p_section, p_name, l_message)
+    raise ConfigValueError(p_section, p_name, l_message)
 
   l_result = url.parse_unix(p_value)
   if p_checkUnix and l_result[1]:

@@ -93,7 +93,7 @@ show-pylint: build/pylint/index.html
 
 clean: clean-doc clean-coverage clean-check clean-pylint clean-dist
 clean-doc:
-	@rm -rf build/docs
+	@rm -rf build/docs docs/xtd*.rst
 clean-coverage:
 	@rm -rf build/coverage
 clean-check:

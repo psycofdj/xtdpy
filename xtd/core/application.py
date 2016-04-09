@@ -9,8 +9,8 @@ __author__    = "Xavier MARCELET <xavier@marcelet.com>"
 import sys
 
 
-from .                    import stat, logger, config, param, mixin
-from .error.exception     import ConfigException, XtdException
+from .      import stat, logger, config, param, mixin
+from .error import ConfigError, XtdError
 
 #------------------------------------------------------------------#
 
@@ -192,14 +192,14 @@ class Application(metaclass=mixin.Singleton):
 
     .. note:: During the initializing phase :
 
-      * Any :py:class:`~xtd.core.error.exception.ConfigException` leads to the display
+      * Any :py:class:`~xtd.core.error.ConfigError` leads to the display
         of the error, followed by the program usage and ends with a ``sys.exit(1)``.
-      * Any :py:class:`~xtd.core.error.exception.XtdException` leads to the display
+      * Any :py:class:`~xtd.core.error.XtdError` leads to the display
         of the error and ends with a ``sys.exit(1)``.
 
       During the process phase :
 
-      * Any :py:class:`~xtd.core.error.exception.XtdException` leads to the log
+      * Any :py:class:`~xtd.core.error.XtdError` leads to the log
         of the error and ends with a ``sys.exit(1)``.
 
     Args:
@@ -213,11 +213,11 @@ class Application(metaclass=mixin.Singleton):
 
     try:
       self.initialize()
-    except ConfigException as l_error:
+    except ConfigError as l_error:
       print(l_error)
       self.m_config.help()
       sys.exit(1)
-    except XtdException as l_error:
+    except XtdError as l_error:
       print(l_error)
       sys.exit(1)
 
@@ -230,7 +230,7 @@ class Application(metaclass=mixin.Singleton):
       self.join()
       logger.info(__name__, "process finished (status=%d)", l_code)
       sys.exit(l_code)
-    except XtdException as l_error:
+    except XtdError as l_error:
       logger.exception(__name__, "uncaught exception '%s', exit(1)", l_error)
       sys.exit(1)
 
