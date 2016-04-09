@@ -65,6 +65,13 @@ html: api
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
 
+.PHONY: html
+vhtml: api
+	$(SPHINXBUILD) -W -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	@echo
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+
+
 .PHONY: html-only
 html-only:
 	$(SPHINXBUILD) -qW -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
