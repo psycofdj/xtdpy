@@ -58,7 +58,7 @@ class StatusHelper:
       "link"  : p_link
     }
 
-  def send_comment(self, p_body):
+  def comment_pr(self, p_body):
     if self.m_dryrun:
       return {}
 
@@ -73,6 +73,27 @@ class StatusHelper:
       "body" : p_body
     }
 
+    try:
+      l_req = requests.post(l_url, params=l_params, headers=l_headers, data=json.dumps(l_data))
+    except Exception:
+      print("error while seding comment to github")
+      sys.exit(1)
+    return l_req.json()
+
+  def comment_commit(self, p_body):
+    if self.m_dryrun:
+      return {}
+
+    l_params  = { "access_token" : self.m_token }
+    l_headers = { "Content-Type" : "application/json" }
+    l_url     = "https://api.github.com/repos/%(user)s/%(repo)s/commits/%(commitID)s/comments" % {
+      "user"     : "psycofdj",
+      "repo"     : "xtd",
+      "commitID" : self.m_commit
+    }
+    l_data = {
+      "body" : p_body
+    }
     try:
       l_req = requests.post(l_url, params=l_params, headers=l_headers, data=json.dumps(l_data))
     except Exception:
@@ -226,8 +247,13 @@ class StatusHelper:
     self.run_unittests()
     self.run_pylint()
     self.run_sphinx()
+
+    self.comment_commit("Automatic build report for commit %(commit)s:\n\n%(results)s" % {
+      "commit" : self.m_commit,
+      "results" : self.m_comment
+    })
     if self.m_prid != "false" :
-      self.send_comment("Automatic checks report for commit %(commit)s:\n\n%(results)s" % {
+      self.comment_pr("Automatic build report for commit %(commit)s:\n\n%(results)s" % {
         "commit" : self.m_commit,
         "results" : self.m_comment
       })

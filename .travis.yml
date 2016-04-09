@@ -1,5 +1,9 @@
 language: python
 
+cache:
+ - pip
+ - apt
+
 dist: trusty
 
 python:
