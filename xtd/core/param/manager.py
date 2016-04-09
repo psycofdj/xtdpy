@@ -36,9 +36,9 @@ class Param:
      Each callback must respect the following prototype :
      ``function(p_parameter, p_oldValue, p_newValue)``
 
-     - p_parameter (Param): the modified Param object
-     - p_oldValue (json-serializable): parameter's old value
-     - p_newvalue (json-serializable): parameter's new value
+     - **p_parameter** (Param): the modified Param object
+     - **p_oldValue** (json-serializable): parameter's old value
+     - **p_newvalue** (json-serializable): parameter's new value
 
      Callback must raise :obj:`xtd.core.error.XtdError` is new value is not acceptable
   """
@@ -169,3 +169,7 @@ class ParamManager(metaclass=mixin.Singleton):
 
   def listen(self, p_name, p_listener):
     return self.get_param(p_name).listen(p_listener)
+
+# Local Variables:
+# ispell-local-dictionary: "american"
+# End:

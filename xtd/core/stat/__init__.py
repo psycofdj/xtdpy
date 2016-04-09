@@ -5,7 +5,7 @@ __author__    = "Xavier MARCELET <xavier@marcelet.com>"
 
 #------------------------------------------------------------------#
 
-from . import writter, handler, counter, manager
+from . import handler, counter, manager
 
 #------------------------------------------------------------------#
 

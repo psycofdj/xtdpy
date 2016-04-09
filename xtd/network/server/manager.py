@@ -76,7 +76,7 @@ class ServerManager:
   def initialize(cls, p_logger):
     if cls.ms_initialized:
       return None
-    cls.ms_counter = counter.AvgTimePerf("rtt")
+    cls.ms_counter = counter.Perf("rtt")
 
     cherrypy.tools.counter_start = \
       cherrypy._cptools.Tool("on_start_resource", cls.ms_counter.work_begin)

@@ -125,7 +125,7 @@ class WrapperLogger(logging.Logger):
 class LogManager(metaclass=mixin.Singleton):
   """
 
-  .. todo:: some 
+  .. todo:: some
   """
   def __init__(self):
     self.m_logs       = []

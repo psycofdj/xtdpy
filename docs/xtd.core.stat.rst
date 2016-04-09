@@ -14,5 +14,4 @@ Submodules
    xtd.core.stat.counter
    xtd.core.stat.handler
    xtd.core.stat.manager
-   xtd.core.stat.writter
 

@@ -18,8 +18,8 @@ class StatManager(thread.SafeThreadGroup, metaclass=mixin.Singleton):
     self.m_counters  = {}
 
   def add_handler(self, p_handler):
-    from .handler import StatHandler
-    if not issubclass(p_handler.__class__, StatHandler):
+    from .handler import BaseHandler
+    if not issubclass(p_handler.__class__, BaseHandler):
       raise error.XtdError(__name__, "handlers must be StatHandler based class")
     self.add_thread(p_handler)
 

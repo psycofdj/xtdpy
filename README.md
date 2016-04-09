@@ -8,6 +8,7 @@ sudo pip3 install xtd
 
 ## Prerequisites
 ```bash
+sudo apt-get install graphviz
 sudo pip3 install -r requirements.dev.txt
 ```
 
