@@ -247,12 +247,12 @@ class Application(metaclass=mixin.Singleton):
         l_dir      = config.get("stat", "disk-directory")
         l_interval = config.get("stat", "disk-interval")
         l_disk     = stat.handler.DiskHandler(l_dir, l_interval)
-        self.m_stat.add_handler(l_disk)
+        self.m_stat.register_handler(l_disk)
       elif c_name == "http":
         l_url      = config.get("stat", "http-url")
         l_interval = config.get("stat", "http-interval")
         l_http      = stat.handler.HttpHandler(l_url, l_interval)
-        self.m_stat.add_handler(l_http)
+        self.m_stat.register_handler(l_http)
 
   def _initialize_log(self):
     self.m_logger = logger.manager.LogManager()

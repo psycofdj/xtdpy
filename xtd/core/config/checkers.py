@@ -223,11 +223,11 @@ def _check_mode(p_path, p_read=False, p_write=False, p_execute=False):
     return False
   l_mode = os.F_OK
   if p_read:
-    l_mode = l_mode or os.R_OK
+    l_mode = l_mode | os.R_OK
   if p_write:
-    l_mode = l_mode or os.W_OK
+    l_mode = l_mode | os.W_OK
   if p_execute:
-    l_mode = l_mode or os.X_OK
+    l_mode = l_mode | os.X_OK
   if os.access(p_path, l_mode):
     return True
   return False

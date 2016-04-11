@@ -9,6 +9,6 @@ from . import handler, counter, manager
 
 #------------------------------------------------------------------#
 
-def get(p_name):
+def get(p_ns, p_name):
   from .manager import StatManager
-  return StatManager().get(p_name)
+  return StatManager().get(p_ns, p_name)

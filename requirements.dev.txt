@@ -1,6 +1,7 @@
 cherrypy
 termcolor
 pycurl
+httmock
 coveralls
 pylint
 sphinx
