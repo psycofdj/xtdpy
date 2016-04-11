@@ -15,7 +15,8 @@ import unittest
 
 from httmock import urlmatch, HTTMock
 
-from xtd.core.stat.handler import BaseHandler, DiskHandler, HttpHandler
+from xtd.core.stat.handler import BaseHandler, DiskHandler
+from xtd.core.stat.handler import HttpHandler, LoggingHandler
 from xtd.core.stat.counter import Int32
 from xtd.core.error import XtdError
 
@@ -144,6 +145,37 @@ class HttpHandlerTest(unittest.TestCase):
           "a.b.c" : [ Int32("toto", 20), Int32("titi", 100) ],
           "a.b"   : [ Int32("toto", 55), Int32("c.d",  106) ]
         })
+
+
+
+class LoggingHandlerTest(unittest.TestCase):
+  def __init__(self, *p_args, **p_kwds):
+    super().__init__(*p_args, **p_kwds)
+
+  @urlmatch(netloc="localhost")
+  def _handle_req(self, p_url, p_request):
+    self.assertEqual(p_request.method, "POST")
+    self.assertEqual(p_request.headers["Content-Type"], "application/json")
+    l_json = json.loads(p_request.body)
+    self.assertDictEqual(l_json, {
+      "a.b.c" : {
+        "toto" : 20,
+        "titi" : 100
+      },
+      "a.b" : {
+        "toto" : 55,
+        "c.d" : 106
+      }
+    })
+    return {'status_code': 200}
+
+  def test_write(self):
+    with self.assertLogs("logger", "INFO") as l_data:
+      LoggingHandler("logger").write({
+        "a.b.c" : [ Int32("toto", 20), Int32("titi", 100) ],
+        "a.b"   : [ Int32("toto", 55), Int32("c.d",  106) ]
+      })
+      self.assertEqual(len(l_data.records), 4)
 
 # Local Variables:
 # ispell-local-dictionary: "american"

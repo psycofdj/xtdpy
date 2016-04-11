@@ -7,7 +7,7 @@ import sys
 
 l_path = os.path.realpath(os.path.dirname(__file__))
 os.chdir(os.path.dirname(l_path))
-sys.path.append(".")
+sys.path.insert(0, ".")
 
 l_classes = 0
 l_members = 0
