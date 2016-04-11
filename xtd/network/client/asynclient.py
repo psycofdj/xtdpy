@@ -133,9 +133,6 @@ class TCPResponse:
   def has_error(self):
     return self.m_error != ""
 
-  def __getattr__(self, p_name):
-    return object.__getattribute__(self, "m_" + p_name)
-
 class HTTPResponse(TCPResponse):
   def __init__(self, p_client):
     super().__init__()
@@ -147,6 +144,9 @@ class HTTPResponse(TCPResponse):
     self.m_mimetype    = "text/plain"
     self.m_encoding    = "iso-8859-1"
     self._read()
+    print(str(self.m_error))
+    print(str(self.m_statusCode))
+    print(str(self.m_data))
 
   def _read_ctype(self, p_headers):
     l_encoding = self.m_encoding
@@ -172,8 +172,7 @@ class HTTPResponse(TCPResponse):
   def has_error(self):
     return self.m_error != ""
 
-  def __getattr__(self, p_name):
-    return object.__getattribute__(self, "m_" + p_name)
+
 
 class AsyncCurlClient:
   def __init__(self, p_request, p_timeoutMs = 1000, p_curlOpts=None):
@@ -289,6 +288,7 @@ class AsyncCurlClient:
     return self.m_response
 
   def read_response(self):
+    print(str("read"))
     self.m_response = HTTPResponse(self)
 
   def send(self, p_retry = 0):
@@ -308,9 +308,9 @@ class AsyncCurlClient:
           self.m_response.m_error = "curl error : %s" % self._error_from_core(l_code)
       if not self.response().has_error():
         return True
-      logger.info(__name__, "error on request '%s' (left %d retries left) : %s", self.m_request.m_url, l_retry, self.response().error)
+      logger.info(__name__, "error on request '%s' (left %d retries left) : %s", self.m_request.m_url, l_retry, self.response().m_error)
       l_retry -= 1
-    logger.error(__name__, "error on request '%s' : %s", self.m_request.m_url, self.response().error)
+    logger.error(__name__, "error on request '%s' : %s", self.m_request.m_url, self.response().m_error)
     return False
 
   def close(self):
@@ -364,6 +364,7 @@ class AsyncCurlMultiClient:
       l_list = [ x for x in self.m_clients if not x.response().has_error() ]
     else:
       l_list = [ x for x in self.m_clients if x.response().has_error() ]
+    print("got %d clients" % len(l_list))
     return l_list
 
   def send(self, p_retry = 0):
@@ -420,7 +421,7 @@ if __name__ == "__main__":
     l_req2 = l_multi.add_request("http://www.google.fr/")
     l_res  = l_multi.send(p_retry=4)
     print(str(l_res))
-    print(str(l_req1.response().error))
-    print(str(l_req2.response().status_code))
+    print(str(l_req1.response().m_error))
+    print(str(l_req2.response().m_statusCode))
     l_multi.close()
   test()
