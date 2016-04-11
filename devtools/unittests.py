@@ -19,7 +19,7 @@ import json
 def __sys_path():
   l_path = os.path.realpath(os.path.dirname(__file__))
   os.chdir(os.path.dirname(l_path))
-  sys.path.append(".")
+  sys.path.insert(0, ".")
 
 __sys_path()
 

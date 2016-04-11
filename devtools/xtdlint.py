@@ -20,7 +20,7 @@ from pylint.lint       import Run, PyLinter
 
 def __sys_path():
   l_path = os.path.realpath(os.path.dirname(__file__))
-  sys.path.append(os.path.dirname(l_path))
+  sys.path.insert(0, os.path.dirname(l_path))
 
 __sys_path()
 

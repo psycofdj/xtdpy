@@ -165,6 +165,11 @@ class HttpHandler(BaseHandler):
     Keep in mind that counter values can be undefined.
 
     In such case, the json value is a string equals to ``"NaN"``.
+
+  Args:
+    p_url : target url for post request
+    p_interval(int): interval, in second, between two outputs
+    p_fetcher (function) : functor that retrieves data counters
   """
   def __init__(self, p_url, p_interval = 50, p_fetcher = None):
     super().__init__(__name__ + "." + self.__class__.__name__, p_interval, p_fetcher)
@@ -201,6 +206,36 @@ class HttpHandler(BaseHandler):
         c_counter.visit(visitor)
     self._send_request(l_res)
 
+
+#------------------------------------------------------------------#
+
+class LoggingHandler(BaseHandler):
+  """ Output counter to application logs
+
+  Args:
+    p_name (str): logger module name
+    p_interval(int): interval, in second, between two outputs
+    p_fetcher (function) : functor that retrieves data counters
+  """
+  def __init__(self, p_name, p_interval = 50, p_fetcher = None):
+    super().__init__(__name__ + "." + self.__class__.__name__, p_interval, p_fetcher)
+    self.m_loggerName = p_name
+
+  def write(self, p_counters):
+    """ Output all available counters to logging facility
+    Args:
+      p_counters (dict) : see :py:meth:`BaseHandler.write`
+    """
+    l_res = {}
+    for c_ns, c_counters in p_counters.items():
+      l_res[c_ns] = {}
+      for c_counter in c_counters:
+        c_counter.update()
+        # pylint: disable=cell-var-from-loop
+        def visitor(p_name, p_value):
+          logger.info(self.m_loggerName, "ns='%s', name='%s', value='%s'",
+                      c_ns, p_name, p_value)
+        c_counter.visit(visitor)
 
 #------------------------------------------------------------------#
 
