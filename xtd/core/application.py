@@ -9,8 +9,8 @@ __author__    = "Xavier MARCELET <xavier@marcelet.com>"
 import sys
 
 
-from .                    import stat, logger, config, param, mixin
-from .error.exception     import ConfigException, XtdException
+from .      import stat, logger, config, param, mixin
+from .error import ConfigError, XtdError
 
 #------------------------------------------------------------------#
 
@@ -74,9 +74,9 @@ class Application(metaclass=mixin.Singleton):
     }])
 
     self.config().register_section("stat", "Stats Settings", [{
-      "name"        : "writters",
+      "name"        : "handlers",
       "default"     : ["disk"],
-      "description" : """Enabled given stat output writter. Possibles values :\n
+      "description" : """Enabled given stat output handler. Possibles values :\n
                          * disk : write counters to --stat-disk-directory
                                   path each --stat-disk-interval seconds\n
                          * http : post counters in json format to --stat-http-url
@@ -89,7 +89,7 @@ class Application(metaclass=mixin.Singleton):
     },{
       "name"        : "disk-directory",
       "default"     : "/tmp/snmp/%s/stat/" % self.m_name,
-      "description" : "Destination directory for counter disk writter"
+      "description" : "Destination directory for counter disk handler"
     },{
       "name"        : "disk-interval",
       "default"     : 50,
@@ -98,7 +98,7 @@ class Application(metaclass=mixin.Singleton):
     },{
       "name"        : "http-url",
       "default"     : "http://localhost/counter",
-      "description" : "Destination POST url for http stat writter"
+      "description" : "Destination POST url for http stat handler"
     },{
       "name"        : "http-interval",
       "default"     : 50,
@@ -106,7 +106,7 @@ class Application(metaclass=mixin.Singleton):
       "checks"      : config.checkers.is_int()
     }])
 
-    self.config().register_section("param", "Persitent Param Settings", [{
+    self.config().register_section("param", "Persistent parameter settings", [{
       "name"        : "directory",
       "default"     : "/tmp/snmp/%s/admin" % self.m_name,
       "description" : "Destination directory for admin persistent parameters"
@@ -192,14 +192,14 @@ class Application(metaclass=mixin.Singleton):
 
     .. note:: During the initializing phase :
 
-      * Any :py:class:`~xtd.core.error.exception.ConfigException` leads to the display
+      * Any :py:class:`~xtd.core.error.ConfigError` leads to the display
         of the error, followed by the program usage and ends with a ``sys.exit(1)``.
-      * Any :py:class:`~xtd.core.error.exception.XtdException` leads to the display
+      * Any :py:class:`~xtd.core.error.XtdError` leads to the display
         of the error and ends with a ``sys.exit(1)``.
 
       During the process phase :
 
-      * Any :py:class:`~xtd.core.error.exception.XtdException` leads to the log
+      * Any :py:class:`~xtd.core.error.XtdError` leads to the log
         of the error and ends with a ``sys.exit(1)``.
 
     Args:
@@ -213,11 +213,11 @@ class Application(metaclass=mixin.Singleton):
 
     try:
       self.initialize()
-    except ConfigException as l_error:
+    except ConfigError as l_error:
       print(l_error)
       self.m_config.help()
       sys.exit(1)
-    except XtdException as l_error:
+    except XtdError as l_error:
       print(l_error)
       sys.exit(1)
 
@@ -230,7 +230,7 @@ class Application(metaclass=mixin.Singleton):
       self.join()
       logger.info(__name__, "process finished (status=%d)", l_code)
       sys.exit(l_code)
-    except XtdException as l_error:
+    except XtdError as l_error:
       logger.exception(__name__, "uncaught exception '%s', exit(1)", l_error)
       sys.exit(1)
 
@@ -241,18 +241,18 @@ class Application(metaclass=mixin.Singleton):
 
   def _initialize_stat(self):
     self.m_stat = stat.manager.StatManager()
-    l_outputters = self.config().get("stat", "writters")
+    l_outputters = self.config().get("stat", "handlers")
     for c_name in l_outputters:
       if c_name == "disk":
         l_dir      = config.get("stat", "disk-directory")
         l_interval = config.get("stat", "disk-interval")
-        l_disk     = stat.writter.DiskWritter(l_dir, l_interval)
-        self.m_stat.add_handler(l_disk)
+        l_disk     = stat.handler.DiskHandler(l_dir, l_interval)
+        self.m_stat.register_handler(l_disk)
       elif c_name == "http":
         l_url      = config.get("stat", "http-url")
         l_interval = config.get("stat", "http-interval")
-        l_http      = stat.writter.HttpWritter(l_url, l_interval)
-        self.m_stat.add_handler(l_http)
+        l_http      = stat.handler.HttpHandler(l_url, l_interval)
+        self.m_stat.register_handler(l_http)
 
   def _initialize_log(self):
     self.m_logger = logger.manager.LogManager()

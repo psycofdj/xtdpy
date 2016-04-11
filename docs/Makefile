@@ -6,6 +6,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = ../build/docs
+INPUT_SRC     = $(shell find ../xtd -name '*.py' | grep -v test_)
 
 # User-friendly check for sphinx-build
 ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $$?), 1)
@@ -54,13 +55,21 @@ clean:
 
 
 .PHONY: api
-api:
+api: xtd.rst
+xtd.rst: $(INPUT_SRC)
 	@sphinx-apidoc -d 999 -e -M -f -o . ../xtd/ ../xtd/test/
 	@rm -f modules.rst
 
 .PHONY: html
 html: api
 	$(SPHINXBUILD) -qW -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	@echo
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+
+
+.PHONY: html
+vhtml: api
+	$(SPHINXBUILD) -W -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 

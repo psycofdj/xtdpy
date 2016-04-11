@@ -12,9 +12,9 @@ __author__    = "Xavier MARCELET <xavier@marcelet.com>"
 import json
 import os
 
-from ..      import mixin
-from ..      import logger
-from ..error import exception
+from .. import mixin
+from .. import logger
+from .. import error
 
 #------------------------------------------------------------------#
 
@@ -36,11 +36,11 @@ class Param:
      Each callback must respect the following prototype :
      ``function(p_parameter, p_oldValue, p_newValue)``
 
-     - p_parameter (Param): the modified Param object
-     - p_oldValue (json-serializable): parameter's old value
-     - p_newvalue (json-serializable): parameter's new value
+     - **p_parameter** (Param): the modified Param object
+     - **p_oldValue** (json-serializable): parameter's old value
+     - **p_newvalue** (json-serializable): parameter's new value
 
-     Callback must raise :obj:`xtd.core.error.exception.XtdException` is new value is not acceptable
+     Callback must raise :obj:`xtd.core.error.XtdError` is new value is not acceptable
   """
   def __init__(self, p_name, p_value, p_callbacks=None):
     if p_callbacks is None:
@@ -79,7 +79,7 @@ class Param:
     for c_ballback in self.m_callbacks:
       try:
         c_ballback(self, self.m_value, p_value)
-      except exception.XtdException as l_error:
+      except error.XtdError as l_error:
         logger.error(__name__,
                      "unable to change param '%s' value from '%s' to '%s', %s",
                      self.m_name, str(self.m_value), str(p_value), str(l_error))
@@ -100,7 +100,7 @@ class ParamManager(metaclass=mixin.Singleton):
       p_adminDir (str) : directory to dump-to/load-from synced parameters
 
     Raises:
-       xtd.core.error.exception.XtdException : p_adminDir is not writable
+       xtd.core.error.XtdError : p_adminDir is not writable
 
     """
     self.m_params = {}
@@ -113,8 +113,8 @@ class ParamManager(metaclass=mixin.Singleton):
       try:
         os.makedirs(p_dir, mode=0o0750)
       except Exception as l_error:
-        raise exception.XtdException(__name__, "unable to create output directory '%s' : %s",
-                                     p_dir, str(l_error))
+        raise error.XtdError(__name__, "unable to create output directory '%s' : %s",
+                             p_dir, str(l_error))
 
   # pylint: disable=unused-argument
   def _write(self, p_param, p_oldValue, p_newValue):
@@ -123,8 +123,8 @@ class ParamManager(metaclass=mixin.Singleton):
       with open(l_path, mode="w") as l_file:
         l_file.write(json.dumps(p_newValue))
     except (IOError, ValueError, TypeError) as l_error:
-      raise exception.XtdException(__name__, "unable to write param '%s' to file '%s', %s",
-                                   p_param.m_name, l_path, str(l_error))
+      raise error.XtdError(__name__, "unable to write param '%s' to file '%s', %s",
+                           p_param.m_name, l_path, str(l_error))
 
   def _load(self, p_param):
     l_path = os.path.join(self.m_adminDir, p_param.m_name)
@@ -135,9 +135,9 @@ class ParamManager(metaclass=mixin.Singleton):
           l_value   = json.loads(l_content)
           p_param.set(l_value)
       except (IOError, ValueError, TypeError) as l_error:
-        raise exception.XtdException(__name__,
-                                     "unable to load param '%s' from value file '%s' : %s",
-                                     p_param.m_name, l_path, str(l_error))
+        raise error.XtdError(__name__,
+                             "unable to load param '%s' from value file '%s' : %s",
+                             p_param.m_name, l_path, str(l_error))
 
   def register(self, p_name, p_value, p_callbacks=None, p_sync=False):
     l_param = Param(p_name, p_value, p_callbacks)
@@ -145,8 +145,8 @@ class ParamManager(metaclass=mixin.Singleton):
 
   def register_param(self, p_param, p_sync=False):
     if p_param.m_name in self.m_params:
-      raise exception.XtdException(__name__, "already defined parameter '%s'",
-                                   p_param.m_name)
+      raise error.XtdError(__name__, "already defined parameter '%s'",
+                           p_param.m_name)
     if p_sync:
       self._load(p_param)
       p_param.listen(self._write)
@@ -158,7 +158,7 @@ class ParamManager(metaclass=mixin.Singleton):
 
   def get_param(self, p_name):
     if not p_name in self.m_params:
-      raise exception.XtdException(__name__, "unregistered paramter '%s'" % p_name)
+      raise error.XtdError(__name__, "unregistered paramter '%s'" % p_name)
     return self.m_params[p_name]
 
   def get(self, p_name):
@@ -169,3 +169,7 @@ class ParamManager(metaclass=mixin.Singleton):
 
   def listen(self, p_name, p_listener):
     return self.get_param(p_name).listen(p_listener)
+
+# Local Variables:
+# ispell-local-dictionary: "american"
+# End:

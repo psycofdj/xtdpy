@@ -5,10 +5,10 @@ __author__    = "Xavier MARCELET <xavier@marcelet.com>"
 
 #------------------------------------------------------------------#
 
-class XtdException(Exception):
-  def __init__(self, p_module, p_message, *p_args):
+class XtdError(BaseException):
+  def __init__(self, p_module, p_message, *p_args, **p_kwds):
     self.m_module  = p_module
-    self.m_message = (p_message % p_args)
+    self.m_message = p_message.format(*p_args, **p_kwds)
     super().__init__()
 
   def log(self):
@@ -23,12 +23,12 @@ class XtdException(Exception):
 
 #------------------------------------------------------------------#
 
-class ConfigException(XtdException):
+class ConfigError(XtdError):
   def __init__(self, p_message):
     super().__init__(p_module="config", p_message=p_message)
 
 
-class ConfigValueException(ConfigException):
+class ConfigValueError(ConfigError):
   def __init__(self, p_section, p_option, p_message):
     l_fmt = "error with parameter '%(option)s' of section '%(section)s' : %(message)s"
     l_msg = l_fmt % {
@@ -38,7 +38,7 @@ class ConfigValueException(ConfigException):
     }
     super().__init__(l_msg)
 
-class ConfigValueFileException(ConfigValueException):
+class ConfigValueFileError(ConfigValueError):
   def __init__(self,
                p_section,
                p_option,
@@ -47,7 +47,7 @@ class ConfigValueFileException(ConfigValueException):
     super().__init__(p_section, p_option, l_message)
 
 
-class ConfigValueDirException(ConfigValueException):
+class ConfigValueDirError(ConfigValueError):
   def __init__(self,
                p_section,
                p_option,
@@ -56,7 +56,7 @@ class ConfigValueDirException(ConfigValueException):
     super().__init__(p_section, p_option, l_message)
 
 
-class ConfigValueDirModeException(ConfigValueException):
+class ConfigValueDirModeError(ConfigValueError):
   def __init__(self,
                p_section,
                p_option,
@@ -80,7 +80,7 @@ class ConfigValueDirModeException(ConfigValueException):
     l_message = "could not open directory '%s' with '%s' access" % (p_fileName, l_modeString)
     super().__init__(p_section, p_option, l_message)
 
-class ConfigValueFileModeException(ConfigValueException):
+class ConfigValueFileModeError(ConfigValueError):
   def __init__(self,
                p_section,
                p_option,
@@ -104,7 +104,7 @@ class ConfigValueFileModeException(ConfigValueException):
     l_message = "could not open path '%s' with '%s' access" % (p_fileName, l_modeString)
     super().__init__(p_section, p_option, l_message)
 
-class ConfigValueTypeException(ConfigValueException):
+class ConfigValueTypeError(ConfigValueError):
   INT   = "int"
   FLOAT = "float"
   BOOL  = "bool"
@@ -112,7 +112,7 @@ class ConfigValueTypeException(ConfigValueException):
     l_message = "could not cast value '%s' int type '%s'" % (p_value, p_typeName)
     super().__init__(p_section, p_option, l_message)
 
-class ConfigValueLimitsException(ConfigValueException):
+class ConfigValueLimitsError(ConfigValueError):
   def __init__(self, p_section, p_option, p_value, p_minValue = None, p_maxValue = None):
     if p_minValue is None:
       p_minValue = "-inf"
@@ -124,7 +124,7 @@ class ConfigValueLimitsException(ConfigValueException):
     super().__init__(p_section, p_option, l_message)
 
 
-class ConfigValueEnumException(ConfigValueException):
+class ConfigValueEnumError(ConfigValueError):
   def __init__(self, p_section, p_option, p_value, p_authorizedValues):
     l_message = "value '%s' must be one of the following '%s'" % (p_value, str(p_authorizedValues))
     super().__init__(p_section, p_option, l_message)

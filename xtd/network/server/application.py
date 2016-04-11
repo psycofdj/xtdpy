@@ -73,7 +73,7 @@ class ServerApplication(Application):
 
 
   def _initialize_counters(self):
-    self.m_stat.add_counter("core.server.http", ServerManager.get_counter())
+    self.m_stat.register_counter("core.server.http", ServerManager.get_counter())
 
   def _initialize_server(self):
     l_password = config.get("http", "admin-password")

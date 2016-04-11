@@ -1,11 +1,16 @@
 language: python
 
+cache:
+ - pip
+ - apt
+
 dist: trusty
 
 python:
   - "3.4"
 
 install:
+ - "sudo apt-get install graphviz"
  - "pip install -r requirements.dev.txt"
 
 script:

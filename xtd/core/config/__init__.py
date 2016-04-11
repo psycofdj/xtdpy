@@ -5,7 +5,7 @@ __author__ = "Xavier MARCELET <xavier@marcelet.com>"
 
 #------------------------------------------------------------------#
 
-import sys
+from .        import checkers, manager, formatter
 from .manager import ConfigManager
 
 #------------------------------------------------------------------#

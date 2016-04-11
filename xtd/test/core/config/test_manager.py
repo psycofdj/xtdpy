@@ -9,7 +9,7 @@ import optparse
 import unittest
 
 from xtd.core.config import manager
-from xtd.core.error  import exception
+from xtd.core        import error
 from xtd.core        import mixin, config
 
 #------------------------------------------------------------------#
@@ -39,9 +39,9 @@ class ConfigManagerTest(unittest.TestCase):
     self._basic_init()
     self.assertEqual(self.m_obj.get("test", "value"), "titi")
     self.assertEqual(config.get("test", "value"), "titi")
-    with self.assertRaises(exception.ConfigValueException):
+    with self.assertRaises(error.ConfigValueError):
       self.m_obj.get("test", "does not exist")
-    with self.assertRaises(exception.ConfigValueException):
+    with self.assertRaises(error.ConfigValueError):
       self.m_obj.get("does not exist", "value")
 
   def test_set(self):
@@ -52,9 +52,9 @@ class ConfigManagerTest(unittest.TestCase):
     config.set("test", "value", "titi")
     self.assertEqual(config.get("test", "value"), "titi")
 
-    with self.assertRaises(exception.ConfigValueException):
+    with self.assertRaises(error.ConfigValueError):
       self.m_obj.set("test", "does not exist", "toto")
-    with self.assertRaises(exception.ConfigValueException):
+    with self.assertRaises(error.ConfigValueError):
       self.m_obj.set("does not exist", "value", "toto")
 
   def test_option_exists(self):
@@ -71,7 +71,7 @@ class ConfigManagerTest(unittest.TestCase):
     l_options = self.m_obj.options("test")
     self.assertEqual(list(l_options), ["value"])
     self.assertEqual(self.m_obj.options("test"), config.options("test"))
-    with self.assertRaises(exception.ConfigException):
+    with self.assertRaises(error.ConfigError):
       self.m_obj.options("does not exist")
 
   def test_section_exists(self):
@@ -95,9 +95,9 @@ class ConfigManagerTest(unittest.TestCase):
   def test__get_option(self):
     self._basic_init()
     l_data = self.m_obj._get_option("test", "value")
-    with self.assertRaises(exception.ConfigValueException):
+    with self.assertRaises(error.ConfigValueError):
       self.m_obj._get_option("test", "does not exist")
-    with self.assertRaises(exception.ConfigValueException):
+    with self.assertRaises(error.ConfigValueError):
       self.m_obj._get_option("does not exist", "value")
 
   def test_option_cmdline_given(self):
@@ -156,10 +156,10 @@ class ConfigManagerTest(unittest.TestCase):
     self.assertEqual(self.m_obj.get("test", "value"), False)
 
   def test_register_section(self):
-    with self.assertRaises(exception.ConfigException):
+    with self.assertRaises(error.ConfigError):
       self.m_obj.register_section("test", "Test", [{}])
 
-    with self.assertRaises(exception.ConfigException):
+    with self.assertRaises(error.ConfigError):
       self.m_obj.register_section("test", "Test", [{
         "name"        : "value",
         "cmdline"     : True,
@@ -171,7 +171,7 @@ class ConfigManagerTest(unittest.TestCase):
         "valued"      : False,
         "unknown"     : "a description"
       }])
-    with self.assertRaises(exception.ConfigException):
+    with self.assertRaises(error.ConfigError):
       self.m_obj.register_section("test", "Test", [{
         "name"        : "value",
         "cmdline"     : True,
@@ -188,7 +188,7 @@ class ConfigManagerTest(unittest.TestCase):
       "mandatory"   : True
     }])
     self.m_obj.initialize()
-    with self.assertRaises(exception.ConfigException):
+    with self.assertRaises(error.ConfigError):
       self.m_obj.parse(["script.py"])
 
 

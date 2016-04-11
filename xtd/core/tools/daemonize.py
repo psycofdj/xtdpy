@@ -7,7 +7,7 @@ __author__    = "Xavier MARCELET <xavier@marcelet.com>"
 
 import os
 import sys
-from ..error import exception
+from .. import error
 
 #------------------------------------------------------------------#
 
@@ -19,14 +19,14 @@ def daemonize(p_pidFilePath):
   try:
     l_pid = os.fork()
   except OSError as l_exception:
-    raise exception.XtdException(__name__, "could not fork : %s" % str(l_exception))
+    raise error.XtdError(__name__, "could not fork : %s" % str(l_exception))
 
   if l_pid == 0:
     os.setsid()
     try:
       l_pid = os.fork()
     except OSError as l_exception:
-      raise exception.XtdException(__name__, "could not fork")
+      raise error.XtdError(__name__, "could not fork")
 
     if l_pid == 0:
       os.umask(0)

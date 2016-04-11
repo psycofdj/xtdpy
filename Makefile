@@ -1,54 +1,104 @@
-SOURCES=$(shell find . -name '*.py' | grep -v test_)
-SOURCEDIRS=$(shell find . -name '*.py' | grep -v test | xargs dirname | sort -u)
-TESTS=$(shell find . -name 'test_*.py')
+INPUT_SRC=$(shell find . -name '*.py' | grep -v test_)
+INPUT_TEST=$(shell find . -name 'test_*.py')
+PKG_NAME=xtd
+PKG_VERSION=$(shell python -c 'import $(PKG_NAME); print($(PKG_NAME).__version__);')
 
-all: cov covdoc cov pylint dist
+all: dev
 
-.doc-built: $(SOURCES) $(TESTS) Makefile
-	@make -s -C docs html
-	@touch $@
+# dev tty
 
-check: $(SOURCES)
-	@./devtools/unittests.py
+dev: dev-doc dev-check dev-pylint dev-coverage
 
-.covdoc-built: $(SOURCES) $(TESTS) Makefile
-	@make -s -C docs coverage
-	@touch $@
+dev-doc:
+	@echo "---------------"
+	@echo " Documentation "
+	@echo "---------------"
+	@make -C docs vhtml
+	@echo ""
 
-.cov-built: $(SOURCES) $(TESTS) Makefile
-	@./devtools/coverage.sh
-	@touch $@
+dev-check: $(SOURCES)
+	@echo "-----------"
+	@echo " Unittests "
+	@echo "-----------"
+	@./devtools/unittests.py -v
+	@echo ""
 
-.dist-built: $(SOURCES) Makefile setup.py setup.cfg
+dev-pylint:
+	@echo "--------"
+	@echo " PyLint "
+	@echo "--------"
+	@./devtools/xtdlint.py --rcfile=.pylintrc --reports=no -j4 xtd -f parseable || true
+	@echo ""
+
+dev-coverage::
+	@echo "--------"
+	@echo " Coverage "
+	@echo "--------"
+	@./devtools/coverage.sh 2> /dev/null
+	@coverage3 report
+	@echo ""
+
+# report
+
+report: report-coverage report-doc report-pylint report-check
+
+report-coverage: build/coverage/index.html
+build/coverage/index.html: $(INPUT_SRC) $(INPUT_TEST) Makefile
+	@echo "generating coverage report ..."
+	@mkdir -p $(dir $@)
+	@./devtools/coverage.sh 2> /dev/null
+	@coverage3 html -d $(dir $@)
+	@echo "generating coverage report ... done"
+
+report-pylint: build/pylint/index.html
+build/pylint/index.html: $(INPUT_SRC) .pylintrc Makefile
+	@echo "generating pylint report ..."
+	@mkdir -p $(dir $@)
+	@./devtools/xtdlint.py --rcfile=.pylintrc -j4 xtd -f html > $@ || true
+	@echo "generating pylint report ... done"
+
+report-doc: build/docs/html/xtd.html
+build/docs/html/xtd.html:  $(INPUT_SRC) Makefile docs/conf.py
+	@echo "generating documentation ..."
+	@mkdir -p $(dir $@)
+	@make -C docs -s html > /dev/null
+	@echo "generating documentation ... done"
+
+report-check: build/unittests/index.json
+build/unittests/index.json:  $(INPUT_SRC) $(INPUT_TEST) Makefile
+	@echo "generating unittests report ..."
+	@mkdir -p $(dir $@)
+	@./devtools/unittests.py --format json -v | json_pp > $@
+	@echo "generating unittests report ... done"
+
+# dist
+
+dist: dist/$(PGK_NAME)-$(PKG_VERSION).tar.gz
+dist/$(PGK_NAME)-$(PKG_VERSION).tar.gz: $(INPUT_SRC) setup.py setup.cfg
 	@./setup.py sdist
-	@touch $@
 
-.pylint-built: $(SOURCES) Makefile
-	@mkdir -p build/pylint/
-	@./devtools/xtdlint.py --rcfile=.pylintrc -j4 xtd -f html > build/pylint/index.html || true
-	@./devtools/xtdlint.py --rcfile=.pylintrc --reports=no -j4 xtd -f text || true
-	@touch $@
+# show
 
-.cov-report-built: .cov-built
-	@coverage3 html -d build/coverage
-	@touch $@
+show: show-coverage show-doc show-check show-pylint
+show-coverage: build/coverage/index.html
+	@sensible-browser $< &
+show-doc: build/docs/html/xtd.html
+	@sensible-browser $< &
+show-check: build/unittests/index.json
+	@sensible-browser $< &
+show-pylint: build/pylint/index.html
+	@sensible-browser $< &
 
-cov: .cov-built .cov-report-built
-covdoc: .covdoc-built
-doc: .doc-built
-pylint: .pylint-built
-dist: .dist-built
+# clean
 
-show-cov: .cov-report-built
-	@sensible-browser build/coverage/index.html &
-show-doc: .doc-built
-	@sensible-browser build/docs/html/xtd.html &
-show-covdoc: .covdoc-built
-	@sensible-browser build/docs/coverage/python.txt &
-show-pylint: .pylint-built
-	@sensible-browser build/pylint/index.html &
-
-show: all show-doc show-cov show-covdoc show-pylint
-
-clean:
-	@rm -rf .dist-built xtd.egg-info dist build .cov-built .cov-report-built .coverage  .doc-built .covdoc-built
+clean: clean-doc clean-coverage clean-check clean-pylint clean-dist
+clean-doc:
+	@rm -rf build/docs docs/xtd*.rst
+clean-coverage:
+	@rm -rf build/coverage
+clean-check:
+	@rm -rf build/unittests
+clean-pylint:
+	@rm -rf build/pylint
+clean-dist:
+	@rm -rf dist/ $(PKG_NAME).egg-info

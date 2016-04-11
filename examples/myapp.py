@@ -7,7 +7,7 @@ __version__   = "0.3"
 
 #------------------------------------------------------------------#
 
-from xtd.server.application import ServerApplication
+from xtd.network.server.application import ServerApplication
 
 #------------------------------------------------------------------#
 

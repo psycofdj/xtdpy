@@ -12,7 +12,7 @@ import optparse
 import sys
 
 from .formatter        import IndentedHelpFormatterWithNL
-from ..error.exception import ConfigValueException, ConfigException
+from ..error           import ConfigValueError, ConfigError
 from ..                import mixin
 
 #------------------------------------------------------------------#
@@ -60,7 +60,7 @@ class Option:
       def function(p_section, p_section, p_value)
 
     They must return the input ``p_value`` (possible possibly trans-typed)
-    and raise :py:exc:`~xtd.core.error.exception.ConfigException` if value is
+    and raise :py:exc:`~xtd.core.error.ConfigError` if value is
     rejected
 
     See :py:mod:`xtd.core.config.checkers` for standard check functions.
@@ -72,7 +72,7 @@ class Option:
 
 
   Raises:
-    xtd.core.error.exception.ConfigException: encountered unknown property
+    xtd.core.error.ConfigError: encountered unknown property
 
   """
   def __init__(self, p_section, p_name, p_prop=None):
@@ -95,7 +95,7 @@ class Option:
 
     for c_key,c_val in p_props.items():
       if not c_key in l_keys:
-        raise ConfigException("invalid option property '%s'" % c_key)
+        raise ConfigError("invalid option property '%s'" % c_key)
       if c_key == "checks" and not isinstance(c_val, list):
         c_val = [ c_val ]
       setattr(self, "m_%s" % c_key, c_val)
@@ -148,12 +148,12 @@ class ConfigManager(metaclass=mixin.Singleton):
      ConfigManager: self
 
     Raises:
-      xtd.core.error.exception.ConfigException: invalid option definition
+      xtd.core.error.ConfigError: invalid option definition
     """
     self.m_sections[p_section] = p_title
     for c_opt in p_options:
       if not "name" in c_opt:
-        raise ConfigException("missing mandatory option property 'name'")
+        raise ConfigError("missing mandatory option property 'name'")
       self.register(p_section, c_opt["name"], c_opt)
     return self
 
@@ -200,13 +200,13 @@ class ConfigManager(metaclass=mixin.Singleton):
       p_section (str): section name
 
     Raises:
-      xtd.core.error.exception.ConfigException: ``p_section`` not registered
+      xtd.core.error.ConfigError: ``p_section`` not registered
 
     Returns:
       list: array of str of option names
     """
     if not p_section in self.m_data:
-      raise ConfigException("section '%s' doesn't exist" % p_section)
+      raise ConfigError("section '%s' doesn't exist" % p_section)
     return list(self.m_data[p_section].keys())
 
   def option_exists(self, p_section, p_name):
@@ -231,13 +231,13 @@ class ConfigManager(metaclass=mixin.Singleton):
       p_option (str): option name
 
     Raises:
-      xtd.core.error.exception.ConfigValueException: section/option not found
+      xtd.core.error.ConfigValueError: section/option not found
 
     Returns:
       (undefined): current option value
     """
     if not p_section in self.m_data or not p_name in self.m_data[p_section]:
-      raise ConfigValueException(p_section, p_name, "unknown configuration entry")
+      raise ConfigValueError(p_section, p_name, "unknown configuration entry")
     return self.m_data[p_section][p_name]
 
   def set(self, p_section, p_name, p_value):
@@ -252,10 +252,10 @@ class ConfigManager(metaclass=mixin.Singleton):
       p_option (str): option name
 
     Raises:
-      xtd.core.error.exception.ConfigValueException: section/option not found
+      xtd.core.error.ConfigValueError: section/option not found
     """
     if not p_section in self.m_data or not p_name in self.m_data[p_section]:
-      raise ConfigValueException(p_section, p_name, "unknown configuration entry")
+      raise ConfigValueError(p_section, p_name, "unknown configuration entry")
     self.m_data[p_section][p_name] = p_value
 
   def help(self, p_file=None):
@@ -321,7 +321,7 @@ class ConfigManager(metaclass=mixin.Singleton):
   def _get_option(self, p_section, p_name):
     l_values = [ x for x in self.m_options if x.m_section == p_section and x.m_name == p_name ]
     if not len(l_values):
-      raise ConfigValueException(p_section, p_name, "unknown configuration entry")
+      raise ConfigValueError(p_section, p_name, "unknown configuration entry")
     return l_values[0]
 
   def _load_data(self):
@@ -372,7 +372,7 @@ class ConfigManager(metaclass=mixin.Singleton):
         l_value = self._validate(c_option.m_section, c_option.m_name, l_value)
         self.set(c_option.m_section, c_option.m_name, l_value)
       elif c_option.m_mandatory:
-        raise ConfigValueException(c_option.m_section, c_option.m_name, "option is mandatory")
+        raise ConfigValueError(c_option.m_section, c_option.m_name, "option is mandatory")
 
   def option_cmdline_given(self, p_section, p_option):
     if self.option_exists(p_section, p_option):
@@ -392,7 +392,7 @@ class ConfigManager(metaclass=mixin.Singleton):
         l_data = json.loads(l_content)
     except Exception as l_error:
       l_message = "invalid json configuration : %s" % str(l_error)
-      raise ConfigValueException("general", "config-file", l_message)
+      raise ConfigValueError("general", "config-file", l_message)
 
     for c_section, c_data in l_data.items():
       for c_option, c_value in c_data.items():

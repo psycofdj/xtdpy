@@ -30,12 +30,14 @@ import os
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.intersphinx'
+  'sphinx.ext.autodoc',
+  'sphinx.ext.napoleon',
+  'sphinx.ext.todo',
+  'sphinx.ext.coverage',
+  'sphinx.ext.viewcode',
+  'sphinx.ext.intersphinx',
+  "sphinx.ext.graphviz",
+  "sphinx.ext.inheritance_diagram"
 ]
 
 
@@ -308,3 +310,4 @@ texinfo_documents = [
 
 autodoc_default_flags = ['members', 'undoc-members']
 autoclass_content = 'init'
+autodoc_member_order = "bysource"
