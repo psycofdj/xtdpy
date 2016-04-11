@@ -8,15 +8,15 @@ __author__    = "Xavier MARCELET <xavier@marcelet.com>"
 
 import sys
 from distutils.core import setup
-from setuptools import find_packages
-
 sys.path.insert(0, ".")
-
 import xtd
 
 setup(
   name         = 'xtd',
-  packages     = find_packages(exclude=["*test*"]),
+  packages = ['xtd',                 'xtd.core',        'xtd.network',
+              'xtd.core.param',      'xtd.core.stat',   'xtd.core.tools',
+              'xtd.core.logger',     'xtd.core.config', 'xtd.network.client',
+              'xtd.network.server'],
   version      = xtd.__version__,
   description  = xtd.__description__,
   author       = xtd.__author__.split("<")[0].strip(),
