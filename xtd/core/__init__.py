@@ -5,7 +5,9 @@ __author__    = "Xavier MARCELET <xavier@marcelet.com>"
 
 #------------------------------------------------------------------#
 
-from . import error, mixin, application
+from . import error
+from . import mixin
+from . import application
 
 #------------------------------------------------------------------#
 
