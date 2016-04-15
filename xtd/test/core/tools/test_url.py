@@ -21,11 +21,11 @@ class UrlTest(unittest.TestCase):
     self.assertEqual(l_parts[:2], ["http", "localhost:80"])
     self.assertEqual(l_unix, None)
 
-    l_parts, l_unix = url.parse_unix("unix+http://%2Fvar%2Frun%2Fdocker.sock/path?param=1")
+    l_parts, l_unix = url.parse_unix("http+unix://%2Fvar%2Frun%2Fdocker.sock/path?param=1")
     self.assertEqual(l_unix, "/var/run/docker.sock")
     self.assertEqual(l_parts[:2], ["http", "localhost"])
 
-    l_parts, l_unix = url.parse_unix("unix+https://%2Fvar%2Frun%2Fdocker.sock/path?param=1")
+    l_parts, l_unix = url.parse_unix("https+unix://%2Fvar%2Frun%2Fdocker.sock/path?param=1")
     self.assertEqual(l_unix, "/var/run/docker.sock")
     self.assertEqual(l_parts[:2], ["https", "localhost"])
 
@@ -34,12 +34,12 @@ class UrlTest(unittest.TestCase):
     self.assertEqual(l_parts[:2], ["http", "localhost"])
 
   def test_unparse_unix(self):
-    l_parts, l_unix = url.parse_unix("unix+http://%2Fvar%2Frun%2Fdocker.sock/path?param=1")
+    l_parts, l_unix = url.parse_unix("http+unix://%2Fvar%2Frun%2Fdocker.sock/path?param=1")
     self.assertEqual(l_unix, "/var/run/docker.sock")
     self.assertEqual(l_parts[:2], ["http", "localhost"])
     l_parts[2] = "/path/to/toto"
     l_url = url.unparse_unix(l_parts, l_unix)
-    self.assertEqual(l_url, "unix+http://%2Fvar%2Frun%2Fdocker.sock/path/to/toto?param=1")
+    self.assertEqual(l_url, "http+unix://%2Fvar%2Frun%2Fdocker.sock/path/to/toto?param=1")
 
     l_parts, l_unix = url.parse_unix("http://localhost:80/path?param=1")
     self.assertEqual(l_parts[:2], ["http", "localhost:80"])
