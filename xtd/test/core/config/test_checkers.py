@@ -161,10 +161,10 @@ class CheckersTest(unittest.TestCase):
     checkers.check_socket("section", "name", "unix:///dev/null",                     p_schemes=['unix'], p_checkUnix=True)
     with self.assertRaises(error.ConfigValueError):
       checkers.check_socket("section", "name", "unix:///var/run/does_not_exists.sock", p_schemes=['unix'], p_checkUnix=True)
-    checkers.check_socket("section", "name", "unix+http://%2Fvar%2Frun%2Fdoes_not_exists.sock", p_schemes=['unix+http'], p_checkUnix=False)
-    checkers.check_socket("section", "name", "unix+http://%2Fdev%2Fnull",                     p_schemes=['unix+http'], p_checkUnix=True)
+    checkers.check_socket("section", "name", "http+unix://%2Fvar%2Frun%2Fdoes_not_exists.sock", p_schemes=['http+unix'], p_checkUnix=False)
+    checkers.check_socket("section", "name", "http+unix://%2Fdev%2Fnull",                     p_schemes=['http+unix'], p_checkUnix=True)
     with self.assertRaises(error.ConfigValueError):
-      checkers.check_socket("section", "name", "unix+http://%2Fvar%2Frun%2Fdoes_not_exists.sock", p_schemes=['unix+http'], p_checkUnix=True)
+      checkers.check_socket("section", "name", "http+unix://%2Fvar%2Frun%2Fdoes_not_exists.sock", p_schemes=['http+unix'], p_checkUnix=True)
 
 if __name__ == "__main__":
   unittest.main()
