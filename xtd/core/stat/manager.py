@@ -19,6 +19,12 @@ class StatManager(thread.SafeThreadGroup, metaclass=mixin.Singleton):
     super().__init__(__name__)
     self.m_counters  = {}
 
+
+  def exists(self, p_ns, p_name):
+    l_list     = self.m_counters.get(p_ns, [])
+    l_counters = [ x for x in l_list if x.m_name == p_name ]
+    return len(l_counters) != 0
+
   def register_counter(self, p_ns, p_counter):
     """ Register a counter in global statistics
 
@@ -33,13 +39,12 @@ class StatManager(thread.SafeThreadGroup, metaclass=mixin.Singleton):
     if not issubclass(p_counter.__class__, BaseCounter):
       raise XtdError(__name__, "attempt to add invalid object type")
 
-    if not p_ns in self.m_counters:
-      self.m_counters[p_ns] = []
-
-    l_counters = [ x for x in self.m_counters[p_ns] if x.m_name == p_counter.m_name ]
-    if len(l_counters):
+    if self.exists(p_ns, p_counter.m_name):
       raise XtdError(__name__, "already defined counter '%s' in namespace '%s'",
                      p_counter.m_name, p_ns)
+
+    if not p_ns in self.m_counters:
+      self.m_counters[p_ns] = []
 
     self.m_counters[p_ns].append(p_counter)
 
@@ -71,7 +76,7 @@ class StatManager(thread.SafeThreadGroup, metaclass=mixin.Singleton):
       raise error.XtdError(__name__, "undefined namespace '%s'" % p_ns)
     for c_counter in self.m_counters[p_ns]:
       if c_counter.m_name == p_name:
-        return self.m_counters[p_ns]
+        return c_counter
     raise error.XtdError(__name__, "undefined counter '%s' in namespace '%s'" % (p_name, p_ns))
 
   def write(self):
@@ -133,3 +138,7 @@ class StatManager(thread.SafeThreadGroup, metaclass=mixin.Singleton):
     return l_res
 
 #------------------------------------------------------------------#
+
+# Local Variables:
+# ispell-local-dictionary: "american"
+# End:

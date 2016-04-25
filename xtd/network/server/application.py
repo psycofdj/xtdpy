@@ -71,10 +71,6 @@ class ServerApplication(Application):
       "description" : "TLS key file"
     }])
 
-
-  def _initialize_counters(self):
-    self.m_stat.register_counter("core.server.http", ServerManager.get_counter())
-
   def _initialize_server(self):
     l_password = config.get("http", "admin-password")
     l_socket   = config.get("http", "listen")
@@ -145,7 +141,7 @@ class ServerApplication(Application):
     super().initialize()
     self._check_config()
     self._initialize_server()
-    self._initialize_counters()
+
 
   def start(self):
     super().start()
