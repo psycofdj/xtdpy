@@ -9,7 +9,7 @@ __version__   = "0.3"
 import json
 import cherrypy
 
-from xtd.core import logger
+from xtd.core import logger, error, stat
 
 #------------------------------------------------------------------#
 
@@ -87,19 +87,57 @@ def log_request_response(p_withResponse):
       l_data["response"]["body"]["chunks"].append(enc(c_chunk))
   return l_data
 
-def request_logger(p_level, p_module):
-  def handle():
+def request_logger():
+  #pylint: disable=invalid-name
+  def handle(level, module):
     l_data = log_request_response(False)
     l_val  = json.dumps(l_data, indent=2)
     for c_line in l_val.split("\n"):
-      logger.log(p_level, p_module, c_line)
+      logger.log(level, module, c_line)
   return handle
 
 
-def response_logger(p_level, p_module):
-  def handle():
+def response_logger():
+  #pylint: disable=invalid-name
+  def handle(level, module):
     l_data = log_request_response(True)
     l_val  = json.dumps(l_data, indent=2)
     for c_line in l_val.split("\n"):
-      logger.log(p_level, p_module, c_line)
+      logger.log(level, module, c_line)
   return handle
+
+def perf_begin():
+  #pylint: disable=invalid-name
+  def handle(ns, name):
+    try:
+      l_counter = stat.manager.StatManager().get(ns, name)
+    except error.XtdError:
+      l_counter = stat.counter.Perf(name)
+      stat.manager.StatManager().register_counter(ns, l_counter)
+    l_counter.work_begin()
+  return handle
+
+def perf_end():
+  #pylint: disable=invalid-name
+  def handle(ns, name):
+    try:
+      l_counter = stat.manager.StatManager().get(ns, name)
+    except error.XtdError:
+      l_counter = stat.counter.Perf(name)
+      stat.manager.StatManager().register_counter(ns, l_counter)
+    l_counter.work_end()
+  return handle
+
+class JsonHTTPError(cherrypy.HTTPError):
+  def __init__(self, p_status, p_message):
+    super().__init__(p_status, p_message)
+    self.m_message = p_message
+
+  def set_response(self):
+    cherrypy.response.status = self.code
+    cherrypy.response.headers["Content-Type"] = "application/json"
+    cherrypy.response.body = json.dumps({
+      "status"  : "%d - %s" % (self.code, self.reason),
+      "message" : self.m_message
+    }).encode("utf-8")
+
