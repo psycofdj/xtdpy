@@ -27,7 +27,7 @@ Features
 * Web application
 
   * Everything included in static application
-  * Ready to used web server (cherrpy based)
+  * Ready to use web server (cherrypy based)
   * HTTP api to access
 
     * logs
@@ -71,7 +71,7 @@ Input options
 -------------
 
 XTD provides a way to declare and read command-line and file configuration
-options in a unified way. An option :
+options in a unified way. An option:
 
   * is registered with an unique ``name`` and belongs to a ``section``
   * is attached to zero-or-more ``checks`` that will validate input values
@@ -85,7 +85,7 @@ User can provides values to options in 3 different ways :
 
   * from internal default value
   * from command line with ``--<section>-<name> VALUE`` option
-  * from program's json configuration file with ``{ "<section>" : { "<name" : VALUE } }``
+  * from program's json configuration file with ``{"<section>": {"<name>": VALUE}}``
 
 When multiple values are available, they are taken with the following order of priority
 (from lowest to highest) :
@@ -100,10 +100,10 @@ Registering options
 
 Arguments are registered with the
 :py:meth:`~xtd.core.config.manager.ConfigManager.register` and
-:py:meth:`~xtd.core.config.manager.ConfigManager.register_section` method
+:py:meth:`~xtd.core.config.manager.ConfigManager.register_section` methods
 of the :py:class:`~xtd.core.config.manager.ConfigManager` (singleton) object
 
-This :py:class:`~xtd.core.config.manager.ConfigManager` is accessible  via the
+This :py:class:`~xtd.core.config.manager.ConfigManager` is accessible via the
 :py:meth:`~xtd.core.application.Application.config` method of your
 :py:class:`~xtd.core.application.Application` or directly from the singleton.
 
@@ -113,7 +113,7 @@ This :py:class:`~xtd.core.config.manager.ConfigManager` is accessible  via the
    Standard check functions :mod:`~xtd.core.config.checkers`
 
 
-The foloowing code:
+The following code:
 
 ..  literalinclude:: _static/options.py
   :language: python
@@ -134,7 +134,7 @@ Reading options
 
 Nothing simpler than reading option values.
 
-From your :py:class:`~xtd.core.application.Application` object :
+From your :py:class:`~xtd.core.application.Application` object:
 
 .. code-block:: python
 
@@ -176,7 +176,7 @@ Features
 * standard python logging module compliant
 
 * ``logger.<level>(<module>, <message>)`` primitives in addition to the standard
-  ``logging.getLogger(<module>).<level>(<message)`` functions
+  ``logging.getLogger(<module>).<level>(<message>)`` functions
 
 * rich default configuration including:
 
@@ -202,13 +202,13 @@ Configuration
 ^^^^^^^^^^^^^
 
 By default, :py:class:`~xtd.core.application.Application` defines two unified
-options that changes the logging behavior :
+options that changes the logging behavior:
 
-* ``--log-config`` : full logging configuration in json format. Details about
+* ``--log-config``: full logging configuration in json format. Details about
   configuration format is available in object
   :py:class:`~xtd.core.logger.manager.LogManager`
 
-* ``--log-override`` : partial logging configuration that will be merged on
+* ``--log-override``: partial logging configuration that will be merged on
   top of full configuration. This option respect the same format as the full
   format except that you may only specify parts. This is useful when you
   want to override the log level for a specific module on the command line
@@ -269,4 +269,4 @@ __classifiers__  = [
 # ispell-local-dictionary: "american"
 # End:
 
-#  LocalWords:  cherrpy
+#  LocalWords:  cherrypy
