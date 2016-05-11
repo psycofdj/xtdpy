@@ -23,13 +23,16 @@ class StatusHelper:
   def __init__(self):
     self.m_dryrun = False
     self.m_parser = argparse.ArgumentParser("xtd build checker")
-    self.m_parser.add_argument("--token",    help="Github API secret token",        dest="m_token",     required=True)
-    self.m_parser.add_argument("--build-id", help="Travis build-id",                dest="m_buildID",   required=True)
-    self.m_parser.add_argument("--commit",   help="Current git commit hash",        dest="m_commit",    required=True)
-    self.m_parser.add_argument("--pull-id",  help="Current pull request,            false if not a PR", dest="m_prid", required=True)
-    self.m_parser.add_argument("--dry-run",  help="Do not push statuses to github", dest="m_dryrun",    action="store_true")
+    self.m_parser.add_argument("--token",    help="Github API secret token",                 dest="m_token",     required=True)
+    self.m_parser.add_argument("--build-id", help="Travis build-id",                         dest="m_buildID",   required=True)
+    self.m_parser.add_argument("--commit",   help="Current git commit hash",                 dest="m_commit",    required=True)
+    self.m_parser.add_argument("--pull-id",  help="Current pull request, false if not a PR", dest="m_prid",      required=True)
+    self.m_parser.add_argument("--dry-run",  help="Do not push statuses to github",          dest="m_dryrun",    action="store_true")
     self.m_parser.parse_args(sys.argv[1:], self)
     self.m_comment = ""
+    print("build-id : %s" % self.m_buildID)
+    print("commit : %s" % self.m_commit)
+    print("pull-id : %s" % self.m_prid)
 
   def getTargetUrl(self):
     l_url = "https://travis-ci.org/psycofdj/xtd/builds/%(buildID)s"
@@ -75,8 +78,8 @@ class StatusHelper:
 
     try:
       l_req = requests.post(l_url, params=l_params, headers=l_headers, data=json.dumps(l_data))
-    except Exception:
-      print("error while seding comment to github")
+    except BaseException:
+      print("error while sending comment to github")
       sys.exit(1)
     return l_req.json()
 
@@ -96,7 +99,7 @@ class StatusHelper:
     }
     try:
       l_req = requests.post(l_url, params=l_params, headers=l_headers, data=json.dumps(l_data))
-    except Exception:
+    except BaseException:
       print("error while seding comment to github")
       sys.exit(1)
     return l_req.json()
@@ -105,7 +108,6 @@ class StatusHelper:
   def send_status(self, p_status, p_tag, p_description):
     if self.m_dryrun:
       return {}
-
     l_url    = "https://api.github.com/repos/%(user)s/%(repo)s/statuses/%(commit)s" % {
       "user"   : "psycofdj",
       "repo"   : "xtd",
@@ -122,7 +124,7 @@ class StatusHelper:
 
     try:
       l_req = requests.post(l_url, params=l_params, headers=l_headers, data=json.dumps(l_data))
-    except Exception:
+    except BaseException:
       print("error while seding comment to github")
       sys.exit(1)
     return l_req.json()
