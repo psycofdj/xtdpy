@@ -124,7 +124,6 @@ class StatusHelper:
 
     try:
       print("url : %s" % l_url)
-      print("params : %s" % l_params)
       print("headers : %s" % l_headers)
       print("data : %s" % json.dumps(l_data))
       l_req = requests.post(l_url, params=l_params, headers=l_headers, data=json.dumps(l_data))
