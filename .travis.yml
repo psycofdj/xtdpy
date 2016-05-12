@@ -14,7 +14,7 @@ install:
  - "pip install -r requirements.dev.txt"
 
 script:
- - ./devtools/statuses.py --commit=$(git rev-parse HEAD) --build-id=${TRAVIS_BUILD_ID} --token=${token} --pull-id=${TRAVIS_PULL_REQUEST}
+ - ./devtools/statuses.py --commit=${TRAVIS_COMMIT} --build-id=${TRAVIS_BUILD_ID} --token=${token} --pull-id=${TRAVIS_PULL_REQUEST}
  - ./devtools/coverage.sh
 
 

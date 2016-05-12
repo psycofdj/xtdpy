@@ -123,7 +123,11 @@ class StatusHelper:
     }
 
     try:
+      print("url : %s" % l_url)
+      print("headers : %s" % l_headers)
+      print("data : %s" % json.dumps(l_data))
       l_req = requests.post(l_url, params=l_params, headers=l_headers, data=json.dumps(l_data))
+      print("status : %s" % l_req.status_code)
     except BaseException:
       print("error while seding comment to github")
       sys.exit(1)
