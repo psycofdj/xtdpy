@@ -30,9 +30,27 @@ class StatusHelper:
     self.m_parser.add_argument("--dry-run",  help="Do not push statuses to github",          dest="m_dryrun",    action="store_true")
     self.m_parser.parse_args(sys.argv[1:], self)
     self.m_comment = ""
-    print("build-id : %s" % self.m_buildID)
-    print("commit : %s" % self.m_commit)
-    print("pull-id : %s" % self.m_prid)
+
+  def get_pr_commit(self):
+    if self.m_dryrun:
+      return {}
+
+    l_params  = { "access_token" : self.m_token }
+    l_headers = { "Content-Type" : "application/json" }
+    l_url     = "https://api.github.com/repos/%(user)s/%(repo)s/pulls/%(prid)s" % {
+      "user"   : "psycofdj",
+      "repo"   : "xtd",
+      "prid"   : self.m_prid
+    }
+
+    try:
+      l_req = requests.get(l_url, params=l_params, headers=l_headers)
+      l_data = l_req.json()
+      return l_data["head"]["sha"]
+    except BaseException:
+      print("error while sending comment to github")
+      sys.exit(1)
+
 
   def getTargetUrl(self):
     l_url = "https://travis-ci.org/psycofdj/xtd/builds/%(buildID)s"
@@ -123,11 +141,7 @@ class StatusHelper:
     }
 
     try:
-      print("url : %s" % l_url)
-      print("headers : %s" % l_headers)
-      print("data : %s" % json.dumps(l_data))
       l_req = requests.post(l_url, params=l_params, headers=l_headers, data=json.dumps(l_data))
-      print("status : %s" % l_req.status_code)
     except BaseException:
       print("error while seding comment to github")
       sys.exit(1)
@@ -247,6 +261,9 @@ class StatusHelper:
 
 
   def run(self):
+    if self.m_prid != "false" :
+      self.m_commit = self.get_pr_commit()
+
     self.send_status("pending", "checks/unittests",     "running unittests...")
     self.send_status("pending", "checks/pylint",        "running pylint...")
     self.send_status("pending", "checks/documentation", "running sphinx...")
