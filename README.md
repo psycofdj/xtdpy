@@ -1,3 +1,13 @@
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
+**Table of Contents**
+
+- [Installing](#installing)
+- [Develop](#develop)
+    - [Prerequisites](#prerequisites)
+    - [Documentation](#documentation)
+- [Project status](#project-status)
+
+<!-- markdown-toc end -->
 # Installing
 
 ```bash
@@ -11,6 +21,10 @@ sudo pip3 install xtd
 sudo apt-get install graphviz
 sudo pip3 install -r requirements.dev.txt
 ```
+
+## Documentation
+
+[Readthedocs online documentation](http://xtd.readthedocs.io/en/latest/xtd.html)
 
 # Project status
 
