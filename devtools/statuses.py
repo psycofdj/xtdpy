@@ -39,22 +39,25 @@ class StatusHelper:
     l_headers = { "Content-Type" : "application/json" }
     l_url     = "https://api.github.com/repos/%(user)s/%(repo)s/pulls/%(prid)s" % {
       "user"   : "psycofdj",
-      "repo"   : "xtd",
+      "repo"   : "xtdpy",
       "prid"   : self.m_prid
     }
 
     try:
       l_req = requests.get(l_url, params=l_params, headers=l_headers)
+    except BaseException as l_error:
+      print("error while sending comment to github to %s : %s" % (l_url, str(l_error)))
+      sys.exit(1)
+
+    try:
       l_data = l_req.json()
       return l_data["head"]["sha"]
     except BaseException as l_error:
-      print("error while sending comment to github")
-      print(str(l_error))
+      print("error while reading sha from '%s' : %s" % (str(l_data), str(l_error)))
       sys.exit(1)
-
-
+      
   def getTargetUrl(self):
-    l_url = "https://travis-ci.org/psycofdj/xtd/builds/%(buildID)s"
+    l_url = "https://travis-ci.org/psycofdj/xtdpy/builds/%(buildID)s"
     return l_url % {
       "buildID" : self.m_buildID
     }
@@ -88,7 +91,7 @@ class StatusHelper:
     l_headers = { "Content-Type" : "application/json" }
     l_url     = "https://api.github.com/repos/%(user)s/%(repo)s/issues/%(prid)s/comments" % {
       "user"   : "psycofdj",
-      "repo"   : "xtd",
+      "repo"   : "xtdpy",
       "prid"   : self.m_prid
     }
     l_data = {
@@ -111,7 +114,7 @@ class StatusHelper:
     l_headers = { "Content-Type" : "application/json" }
     l_url     = "https://api.github.com/repos/%(user)s/%(repo)s/commits/%(commitID)s/comments" % {
       "user"     : "psycofdj",
-      "repo"     : "xtd",
+      "repo"     : "xtdpy",
       "commitID" : self.m_commit
     }
     l_data = {
@@ -131,7 +134,7 @@ class StatusHelper:
       return {}
     l_url    = "https://api.github.com/repos/%(user)s/%(repo)s/statuses/%(commit)s" % {
       "user"   : "psycofdj",
-      "repo"   : "xtd",
+      "repo"   : "xtdpy",
       "commit" : self.m_commit
     }
     l_params  = { "access_token" : self.m_token }
