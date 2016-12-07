@@ -12,6 +12,7 @@ import requests
 import argparse
 import subprocess
 import urllib
+import hashlib
 
 l_path = os.path.realpath(os.path.dirname(__file__))
 os.chdir(os.path.dirname(l_path))
@@ -30,6 +31,12 @@ class StatusHelper:
     self.m_parser.add_argument("--dry-run",  help="Do not push statuses to github",          dest="m_dryrun",    action="store_true")
     self.m_parser.parse_args(sys.argv[1:], self)
     self.m_comment = ""
+    print("build-id : %s" % str(self.m_buildID))
+    print("commit : %s" % str(self.m_commit))
+    print("pull-id : %s" % str(self.m_prid))
+    l_md5 = hashlib.md5()
+    l_md5.update(self.m_token)
+    print("hash(token) : %s" % str(l_md5.digest()))
 
   def get_pr_commit(self):
     if self.m_dryrun:
@@ -56,7 +63,7 @@ class StatusHelper:
     except BaseException as l_error:
       print("error while reading sha from '%s' : %s" % (str(l_data), str(l_error)))
       sys.exit(1)
-      
+
   def getTargetUrl(self):
     l_url = "https://travis-ci.org/psycofdj/xtdpy/builds/%(buildID)s"
     return l_url % {
