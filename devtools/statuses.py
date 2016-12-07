@@ -44,6 +44,7 @@ class StatusHelper:
     }
 
     try:
+      print("GET %s" % l_url)
       l_req = requests.get(l_url, params=l_params, headers=l_headers)
     except BaseException as l_error:
       print("error while sending comment to github to %s : %s" % (l_url, str(l_error)))
@@ -99,6 +100,7 @@ class StatusHelper:
     }
 
     try:
+      print("POST %s" % l_url)
       l_req = requests.post(l_url, params=l_params, headers=l_headers, data=json.dumps(l_data))
     except BaseException as l_error:
       print("error while sending comment to github")
@@ -121,6 +123,7 @@ class StatusHelper:
       "body" : p_body
     }
     try:
+      print("POST %s" % l_url)
       l_req = requests.post(l_url, params=l_params, headers=l_headers, data=json.dumps(l_data))
     except BaseException as l_error:
       print("error while seding comment to github")
@@ -147,6 +150,7 @@ class StatusHelper:
     }
 
     try:
+      print("POST %s" % l_url)
       l_req = requests.post(l_url, params=l_params, headers=l_headers, data=json.dumps(l_data))
     except BaseException as l_error:
       print("error while seding comment to github")
