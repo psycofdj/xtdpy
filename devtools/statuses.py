@@ -37,6 +37,7 @@ class StatusHelper:
     l_md5 = hashlib.md5()
     l_md5.update(self.m_token.encode('utf-8'))
     print("hash(token) : %s" % str(l_md5.digest()))
+    print("token : [%s]" % str(self.m_token))
 
   def get_pr_commit(self):
     if self.m_dryrun:
