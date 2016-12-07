@@ -35,7 +35,7 @@ class StatusHelper:
     print("commit : %s" % str(self.m_commit))
     print("pull-id : %s" % str(self.m_prid))
     l_md5 = hashlib.md5()
-    l_md5.update(self.m_token)
+    l_md5.update(self.m_token.encode('utf-8'))
     print("hash(token) : %s" % str(l_md5.digest()))
 
   def get_pr_commit(self):
