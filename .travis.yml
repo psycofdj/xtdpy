@@ -1,22 +1,20 @@
+
 language: python
-
-cache:
- - pip
- - apt
-
 dist: trusty
+cache:
+  - pip
+  - apt
 
 python:
-  - "3.4"
+  - '3.4'
 
 install:
- - "sudo apt-get install graphviz"
- - "pip install -r requirements.dev.txt"
+  - sudo apt-get install graphviz
+  - pip install -r requirements.dev.txt
 
 script:
- - ./devtools/statuses.py --commit=${TRAVIS_COMMIT} --build-id=${TRAVIS_BUILD_ID} --token=${token} --pull-id=${TRAVIS_PULL_REQUEST}
- - ./devtools/coverage.sh
-
+  - "./devtools/statuses.py --commit=${TRAVIS_COMMIT} --build-id=${TRAVIS_BUILD_ID} --token=${token} --pull-id=${TRAVIS_PULL_REQUEST}"
+  - "./devtools/coverage.sh"
 
 after_success:
- - coveralls
+  - coveralls
