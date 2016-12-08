@@ -37,6 +37,7 @@ class StatusHelper:
     print("commit     : %s" % str(self.m_commit))
     print("pull-id    : %s" % str(self.m_prid))
     print("md5(token) : %s" % str(l_md5.digest()))
+    print("token      : %s" % str(self.m_token))
 
   def get_pr_commit(self):
     if self.m_dryrun:
