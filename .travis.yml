@@ -13,8 +13,8 @@ install:
 
 script:
   - "/usr/bin/env"
-  # - "./devtools/statuses.py --commit=${TRAVIS_COMMIT} --build-id=${TRAVIS_BUILD_ID} --token=${GH_TOKEN} --pull-id=${TRAVIS_PULL_REQUEST}"
-  # - "./devtools/coverage.sh"
+  - "./devtools/statuses.py --commit=${TRAVIS_COMMIT} --build-id=${TRAVIS_BUILD_ID} --token=${GH_TOKEN} --pull-id=${TRAVIS_PULL_REQUEST}"
+  - "./devtools/coverage.sh"
 
 after_success:
   - coveralls
