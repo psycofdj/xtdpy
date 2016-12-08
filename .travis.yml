@@ -13,12 +13,8 @@ install:
 
 script:
   - "/usr/bin/env"
-  - "./devtools/statuses.py --commit=${TRAVIS_COMMIT} --build-id=${TRAVIS_BUILD_ID} --token=${GH_TOKEN} --pull-id=${TRAVIS_PULL_REQUEST}"
+  - "./devtools/statuses.py --commit=${TRAVIS_COMMIT} --build-id=${TRAVIS_BUILD_ID} --token=${token} --pull-id=${TRAVIS_PULL_REQUEST}"
   - "./devtools/coverage.sh"
 
 after_success:
   - coveralls
-
-addons:
-  jwt:
-    - secure: irVy7GCgsMsMNQQCmQGCCqLI9KveHWqEopEPgdmD60e/9HiouSnpNw0Ff1cbqZaY5h2hygMof4iX5Rx60siHMwGHZf5ABa+Y5+Rd8FWmVF8t0Hl2zwF/T6EpUKyNGfqzG96RXPa6QAcqq049YEuMri8GVhc+FK9JfYQZ2HHMLQwkHbMImJKaN82y0fuAemIJ5KWY+EjKMk+Oi4lLVZMqR8S6k1PZ4TD/QzS/5n/o7Z2/rrFZYEDVzObeIIbR2c5gNkNSJar4a7DZNBxFbvaFf9KMO61zrTYuEsX3cnouZw+dLu178Zku+jZW3xBcBa/O9EtUPHkRiOSym91x3nptWouds3Eql9TpH1r57b/NXWz9TmFifhVJuzn3G822C2RKjZb6uTAe63i0bYq3qzFhEnpqrgBlVZlYLHjKmcoCGqGCMLO/YudWFCYvieJIakxVV7DJ2QYf8VNhAF3cFY+t6V5Z2MmvK0mtM6YYLJHMT3G83frgkoYb2f/Jsd+6BRH845v8iCJd5sgXGceMnT+Bv98YZfDocCjHGwS3KpPAroTTtrHoPn88X6Fm2wL0D/+G99eYN7PTVZthDg++m0KqQ2MpBWr2yiLRqA/7FqZWrT4lH/IbxPb/fiZs5fyODbmeMu2/5uA9nVPH69pkpD6doACu9mnmXIYGTe4wm8FF66o=
