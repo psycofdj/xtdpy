@@ -1,20 +1,21 @@
 # -*- coding: utf-8
 # pylint: disable=unused-import
 #------------------------------------------------------------------#
+from __future__   import print_function
 
 __author__    = "Xavier MARCELET <xavier@marcelet.com>"
 
 #------------------------------------------------------------------#
 
 import sys
-
+from future.utils import with_metaclass
 
 from .      import stat, logger, config, param, mixin
 from .error import ConfigError, XtdError
 
 #------------------------------------------------------------------#
 
-class Application(metaclass=mixin.Singleton):
+class Application(with_metaclass(mixin.Singleton, object)):
   """XTD main application object
 
   Users must inherit this class :
@@ -153,7 +154,8 @@ class Application(metaclass=mixin.Singleton):
       * application's memory parameters, See :py:mod:`xtd.core.param`
       * application's statistics, See :py:mod:`xtd.core.stat`
 
-    Any child class that overrides this method should call ``super().initialize()``
+    Any child class that overrides this method should call
+    ``super(Application, self).initialize()``
     """
     self._initialize_config()
     self._initialize_log()
@@ -163,24 +165,27 @@ class Application(metaclass=mixin.Singleton):
   def start(self):
     """Start background modules
 
-    Any child class that overrides this method should call ``super().start()``
-    or start :py:class:`~xtd.core.stat.manager.StatManager` by hand
+    Any child class that overrides this method should call
+    ``super(Application, self).start()`` or start
+    :py:class:`~xtd.core.stat.manager.StatManager` by hand
     """
     self.m_stat.start()
 
   def stop(self):
     """Stop background modules
 
-    Any child class that overrides this method should call ``super().stop()``
-    or stop :py:class:`~xtd.core.stat.manager.StatManager` by hand
+    Any child class that overrides this method should call
+    ``super(Application, self).stop()`` or stop
+    :py:class:`~xtd.core.stat.manager.StatManager` by hand
     """
     self.m_stat.stop()
 
   def join(self):
     """Join background modules
 
-    Any child class that overrides this method should call ``super().join()``
-    or join :py:class:`~xtd.core.stat.manager.StatManager` by hand
+    Any child class that overrides this method should call
+    ``super(Application, self).join()`` or join
+    :py:class:`~xtd.core.stat.manager.StatManager` by hand
     """
     self.m_stat.join()
 
