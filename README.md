@@ -10,8 +10,24 @@
 <!-- markdown-toc end -->
 # Installing
 
+From Python Package index :
 ```bash
+# for python2 (default)
+sudo pip install xtd
+# for python3
 sudo pip3 install xtd
+```
+
+From PPA Packages :
+
+Link: https://launchpad.net/~psycofdj/+archive/ubuntu/xtdpy
+```bash
+sudo add-apt-repository ppa:psycofdj/xtdpy
+sudo apt-get update
+# for python2 (default)
+sudo apt-get install python-xtd
+# for python3 (default)
+sudo apt-get install python3-xtd
 ```
 
 # Develop
