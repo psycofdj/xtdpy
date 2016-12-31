@@ -48,5 +48,5 @@ Unstable but usable.
 
 [![PyPI version](https://badge.fury.io/py/xtd.svg)](https://badge.fury.io/py/xtd)
 [![Build Status](https://travis-ci.org/psycofdj/xtdpy.svg?branch=master)](https://travis-ci.org/psycofdj/xtdpy)
-[![Documentation Status](https://readthedocs.org/projects/xtd/badge/?version=latest)](http://xtd.readthedocs.org/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/xtdpy/badge/?version=latest)](http://xtd.readthedocs.org/en/latest/xtd.html?badge=latest)
 
